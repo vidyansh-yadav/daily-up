@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Daily-Up - Developer Habit Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="hacker-theme register-page">
+    <div class="matrix-background"></div>
+    
+    <div class="auth-container">
+        <div class="auth-terminal">
+            <div class="terminal-header">
+                <div class="terminal-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span class="terminal-title">register@daily-up:~</span>
+            </div>
+            
+            <div class="terminal-content">
+                <div class="auth-form">
+                    <div class="logo">
+                        <i class="fas fa-terminal"></i>
+                        <span>DAILY-UP</span>
+                    </div>
+                    
+                    <h1 class="auth-title glitch" data-text="CREATE ACCOUNT">CREATE ACCOUNT</h1>
+                    <p class="auth-subtitle">Join the productivity revolution</p>
+                    
+                    <form id="registerForm">
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="username" placeholder="USERNAME" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" placeholder="EMAIL ADDRESS" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" placeholder="PASSWORD" required>
+                            <button type="button" class="show-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="confirmPassword" placeholder="CONFIRM PASSWORD" required>
+                            <button type="button" class="show-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="terms" required>
+                                <span>I agree to the <a href="#" class="terms-link">Terms & Conditions</a></span>
+                            </label>
+                        </div>
+                        
+                        <div id="error-message" class="error-message" style="display: none;"></div>
+                        
+                        <button type="submit" class="auth-submit">
+                            <i class="fas fa-user-plus"></i> CREATE ACCOUNT
+                            <span class="loading-spinner" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                        </button>
+                        
+                        <p class="auth-switch">
+                            Already have an account? <a href="login.html">Login here</a>
+                        </p>
+                    </form>
+                </div>
+                
+                <div class="terminal-footer">
+                    <p>> Account Creation: Secure</p>
+                    <p>> Encryption: AES-256</p>
+                    <p>> Status: <span class="success">Ready for Registration</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="auth-info">
+            <h2>Start Your Journey</h2>
+            <p class="tagline">Track your habits like a developer</p>
+            
+            <div class="benefits-list">
+                <div class="benefit-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Track coding practice hours</span>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Monitor daily standups</span>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Build project portfolios</span>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Learn new technologies</span>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Improve productivity</span>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Join developer community</span>
+                </div>
+            </div>
+            
+            <div class="stats-preview">
+                <div class="stat">
+                    <h3>99%</h3>
+                    <p>Success Rate</p>
+                </div>
+                <div class="stat">
+                    <h3>24/7</h3>
+                    <p>Tracking</p>
+                </div>
+                <div class="stat">
+                    <h3>AI</h3>
+                    <p>Motivation</p>
+                </div>
+            </div>
+            
+            <div class="dev-credit">
+                <p>Powered by</p>
+                <p class="dev-name">UNSEEN-TERMINATION</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+        <script>
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const errorDiv = document.getElementById('errorMessage');
+        
+        if (password !== confirmPassword) {
+            errorDiv.textContent = 'Passwords do not match';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                window.location.href = '/dashboard';
+            } else {
+                errorDiv.textContent = data.error || 'Registration failed';
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            errorDiv.textContent = 'Network error. Please try again.';
+            errorDiv.style.display = 'block';
+        }
+    });
+</script>
+    
+</body>
+</html>

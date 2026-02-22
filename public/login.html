@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Daily-Up - Developer Habit Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="hacker-theme login-page">
+    <div class="matrix-background"></div>
+    
+    <div class="auth-container">
+        <div class="auth-terminal">
+            <div class="terminal-header">
+                <div class="terminal-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span class="terminal-title">login@daily-up:~</span>
+            </div>
+            
+            <div class="terminal-content">
+                <div class="auth-form">
+                    <div class="logo">
+                        <i class="fas fa-terminal"></i>
+                        <span>DAILY-UP</span>
+                    </div>
+                    
+                    <h1 class="auth-title glitch" data-text="SYSTEM ACCESS">SYSTEM ACCESS</h1>
+                    <p class="auth-subtitle">Enter your credentials to continue</p>
+                    
+                    <form id="loginForm">
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="email" id="email" placeholder="EMAIL ADDRESS" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" placeholder="PASSWORD" required>
+                            <button type="button" class="show-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="form-options">
+                            <label>
+                                <input type="checkbox" name="remember">
+                                <span>Remember me</span>
+                            </label>
+                            <a href="#" class="forgot-link">Forgot password?</a>
+                        </div>
+                        
+                        <div id="error-message" class="error-message" style="display: none;"></div>
+                        
+                        <button type="submit" class="auth-submit">
+                            <i class="fas fa-terminal"></i> LOGIN
+                            <span class="loading-spinner" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                        </button>
+                        
+                        <p class="auth-switch">
+                            New user? <a href="register.html">Create account</a>
+                        </p>
+                    </form>
+                </div>
+                
+                <div class="terminal-footer">
+                    <p>> Authentication Protocol: Secure</p>
+                    <p>> Connection: Encrypted</p>
+                    <p>> Status: <span class="success">Awaiting Credentials</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="auth-info">
+            <h2>Developer Habit Tracker</h2>
+            <p class="tagline">Code Your Habits. Track Your Progress.</p>
+            
+            <div class="features-showcase">
+                <div class="feature-item">
+                    <i class="fas fa-chart-network"></i>
+                    <h4>Advanced Analytics</h4>
+                    <p>Track your progress with detailed charts</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h4>Smart Calendar</h4>
+                    <p>Visualize habits on interactive calendar</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-brain"></i>
+                    <h4>AI Motivation</h4>
+                    <p>Personalized daily motivation</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-code"></i>
+                    <h4>Developer Focus</h4>
+                    <p>Specialized for coding habits</p>
+                </div>
+            </div>
+            
+            <div class="dev-credit">
+                <p>Developed by</p>
+                <p class="dev-name">UNSEEN-TERMINATION</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('errorMessage');
+        
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                window.location.href = '/dashboard';
+            } else {
+                errorDiv.textContent = data.error || 'Login failed';
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            errorDiv.textContent = 'Network error. Please try again.';
+            errorDiv.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily-Up | Developer Habit Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Courier New", monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 3rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .logo i {
+            color: #00ff00;
+        }
+        
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .nav-links a:hover {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: glitch 3s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 2rem;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: #00ff00;
+            color: #000;
+        }
+        
+        .btn-secondary {
+            border: 1px solid #00ff00;
+            color: #00ff00;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.2);
+        }
+        
+        .terminal {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: left;
+            max-width: 800px;
+            margin: 3rem auto;
+        }
+        
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .terminal-dots {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27ca3f; }
+        
+        .terminal-title {
+            color: #888;
+        }
+        
+        .terminal-content p {
+            margin-bottom: 0.5rem;
+            font-family: "Courier New", monospace;
+        }
+        
+        .prompt {
+            color: #00ff00;
+        }
+        
+        .success {
+            color: #00ff00;
+        }
+        
+        .typing {
+            border-right: 2px solid #00ff00;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { border-color: transparent; }
+            50% { border-color: #00ff00; }
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid #333;
+            color: #888;
+        }
+        
+        .dev-credit {
+            color: #00ff00;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i>⎔</i>
+                <span>DAILY-UP</span>
+            </div>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/login">Login</a>
+                <a href="/register">Register</a>
+            </nav>
+        </header>
+        
+        <main class="hero">
+            <h1 class="glitch">CODE YOUR HABITS</h1>
+            <p>Track, Analyze, and Optimize Your Daily Routine Like a Developer</p>
+            
+            <div class="cta-buttons">
+                <a href="/register" class="btn btn-primary">
+                    <i>🚀</i> GET STARTED
+                </a>
+                <a href="/login" class="btn btn-secondary">
+                    <i>🔐</i> LOGIN
+                </a>
+            </div>
+        </main>
+        
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span class="terminal-title">terminal@daily-up:~</span>
+            </div>
+            <div class="terminal-content">
+                <p><span class="prompt">$</span> ./initiate_habit_tracker.sh</p>
+                <p>> Initializing Daily-Up System...</p>
+                <p>> Loading User Interface...</p>
+                <p>> Connecting to Database...</p>
+                <p>> <span class="success">✓ System Ready!</span></p>
+                <p><span class="prompt">$</span> <span class="typing"></span></p>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <p>Developed with ❤️ by developers, for developers</p>
+            <p class="dev-credit">UNSEEN-TERMINATION</p>
+            <p>© 2024 Daily-Up. All systems operational.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Terminal typing effect
+        const typingElement = document.querySelector('.typing');
+        const texts = [
+            'npm start habit-tracker',
+            'git commit -m "Daily progress"',
+            './build-success.sh',
+            'echo "Keep coding!"'
+        ];
+        let textIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        
+        function type() {
+            const currentText = texts[textIndex];
+            
+            if (isDeleting) {
+                typingElement.textContent = currentText.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typingElement.textContent = currentText.substring(0, charIndex + 1);
+                charIndex++;
+            }
+            
+            if (!isDeleting && charIndex === currentText.length) {
+                isDeleting = true;
+                setTimeout(type, 2000);
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                textIndex = (textIndex + 1) % texts.length;
+                setTimeout(type, 500);
+            } else {
+                setTimeout(type, isDeleting ? 50 : 100);
+            }
+        }
+        
+        setTimeout(type, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | Daily-Up</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Profile Page Specific Styles */
+        :root {
+            --primary-color: #00ff00;
+            --secondary-color: #00ccff;
+            --dark-bg: #0a0a0a;
+            --terminal-bg: #1a1a1a;
+            --text-color: #ffffff;
+            --text-muted: #888888;
+            --border-color: #333333;
+            --success-color: #00ff00;
+            --warning-color: #ffaa00;
+            --error-color: #ff3333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--dark-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar {
+            position: relative;
+        }
+
+        .avatar-large {
+            width: 120px;
+            height: 120px;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--primary-color);
+            font-size: 3rem;
+            color: var(--primary-color);
+        }
+
+        .change-avatar {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .profile-title h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-title p {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-card p {
+            color: var(--text-muted);
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+
+        .edit-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .edit-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .info-label {
+            width: 120px;
+            color: var(--text-muted);
+        }
+
+        .info-value {
+            flex: 1;
+            color: var(--text-color);
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .skill-tag {
+            background: rgba(0, 255, 0, 0.1);
+            color: var(--primary-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .skill-tag i {
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .add-skill {
+            background: none;
+            border: 1px dashed var(--border-color);
+            color: var(--text-muted);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .achievement-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .achievement-card i {
+            font-size: 2rem;
+            color: var(--warning-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .achievement-card h4 {
+            margin-bottom: 0.3rem;
+        }
+
+        .achievement-card p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .settings-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-group h3 {
+            color: var(--text-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .setting-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .setting-info i {
+            color: var(--primary-color);
+            width: 20px;
+        }
+
+        .toggle-switch {
+            width: 50px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary-color);
+        }
+
+        .toggle-slider {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            left: 28px;
+        }
+
+        .danger-zone {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 51, 51, 0.1);
+            border: 1px solid var(--error-color);
+            border-radius: 8px;
+        }
+
+        .danger-zone h3 {
+            color: var(--error-color);
+            margin-bottom: 1rem;
+        }
+
+        .danger-btn {
+            background: none;
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 1rem;
+        }
+
+        .danger-btn:hover {
+            background: var(--error-color);
+            color: var(--dark-bg);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--terminal-bg);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h2 {
+            color: var(--primary-color);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-color);
+            font-family: 'Courier New', monospace;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .dev-credit {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        .dev-name {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .achievements-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <div class="avatar-large">
+                    <i class="fas fa-user-secret"></i>
+                </div>
+                <button class="change-avatar" onclick="openAvatarModal()">
+                    <i class="fas fa-camera"></i>
+                </button>
+            </div>
+            <div class="profile-title">
+                <h1 id="profileName">Developer</h1>
+                <p><i class="fas fa-map-pin"></i> <span id="profileLocation">Digital Workspace</span></p>
+                <p><i class="fas fa-calendar-alt"></i> Member since <span id="memberSince">February 2026</span></p>
+            </div>
+        </div>
+        
+        <!-- Profile Stats -->
+        <div class="profile-stats">
+            <div class="stat-card">
+                <i class="fas fa-fire"></i>
+                <h3 id="statStreak">7</h3>
+                <p>Day Streak</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <h3 id="statCompleted">156</h3>
+                <p>Habits Done</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-star"></i>
+                <h3 id="statLongest">15</h3>
+                <p>Longest Streak</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <h3 id="statHours">124</h3>
+                <p>Hours Focused</p>
+            </div>
+        </div>
+        
+        <!-- Profile Grid -->
+        <div class="profile-grid">
+            <!-- Personal Info Section -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-user"></i> Personal Information</h2>
+                    <button class="edit-btn" onclick="openEditProfileModal()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value" id="fullName">Alex Developer</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Username</span>
+                    <span class="info-value" id="username">@dev_alex</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email</span>
+                    <span class="info-value" id="email">alex@daily-up.com</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Location</span>
+                    <span class="info-value" id="location">San Francisco, CA</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Bio</span>
+                    <span class="info-value" id="bio">Passionate developer building better habits every day.</span>
+                </div>
+            </div>
+            
+            <!-- Skills Section -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-code"></i> Skills & Expertise</h2>
+                    <button class="edit-btn" onclick="openAddSkillModal()">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                </div>
+                <div class="skills-list" id="skillsList">
+                    <span class="skill-tag">
+                        JavaScript <i class="fas fa-times" onclick="removeSkill('JavaScript')"></i>
+                    </span>
+                    <span class="skill-tag">
+                        React <i class="fas fa-times" onclick="removeSkill('React')"></i>
+                    </span>
+                    <span class="skill-tag">
+                        Node.js <i class="fas fa-times" onclick="removeSkill('Node.js')"></i>
+                    </span>
+                    <span class="skill-tag">
+                        Python <i class="fas fa-times" onclick="removeSkill('Python')"></i>
+                    </span>
+                    <span class="add-skill" onclick="openAddSkillModal()">
+                        <i class="fas fa-plus"></i> Add Skill
+                    </span>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Learning Goals</h3>
+                    <div class="info-row">
+                        <span class="info-label">Daily Goal</span>
+                        <span class="info-value" id="dailyGoal">5 habits/day</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Weekly Target</span>
+                        <span class="info-value" id="weeklyTarget">35 habits/week</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Achievements Section -->
+        <div class="profile-section" style="margin-bottom: 2rem;">
+            <div class="section-header">
+                <h2><i class="fas fa-trophy"></i> Achievements</h2>
+            </div>
+            <div class="achievements-grid">
+                <div class="achievement-card">
+                    <i class="fas fa-rocket"></i>
+                    <h4>7 Day Streak</h4>
+                    <p>Completed 7 days in a row</p>
+                </div>
+                <div class="achievement-card">
+                    <i class="fas fa-brain"></i>
+                    <h4>Learning Master</h4>
+                    <p>Completed 50 learning habits</p>
+                </div>
+                <div class="achievement-card">
+                    <i class="fas fa-code"></i>
+                    <h4>Code Warrior</h4>
+                    <p>100 hours of coding</p>
+                </div>
+                <div class="achievement-card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h4>Perfect Week</h4>
+                    <p>Completed all habits for a week</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Settings Section -->
+        <div class="profile-section" style="margin-bottom: 2rem;">
+            <div class="section-header">
+                <h2><i class="fas fa-cog"></i> Settings</h2>
+            </div>
+            
+            <div class="settings-group">
+                <h3>Notifications</h3>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-bell"></i>
+                        <span>Daily Reminders</span>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this, 'dailyReminders')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-envelope"></i>
+                        <span>Email Reports</span>
+                    </div>
+                    <div class="toggle-switch" onclick="toggleSetting(this, 'emailReports')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Push Notifications</span>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this, 'pushNotifications')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <h3>Privacy</h3>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-globe"></i>
+                        <span>Public Profile</span>
+                    </div>
+                    <div class="toggle-switch" onclick="toggleSetting(this, 'publicProfile')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Share Analytics</span>
+                    </div>
+                    <div class="toggle-switch" onclick="toggleSetting(this, 'shareAnalytics')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <h3>Theme</h3>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-palette"></i>
+                        <span>Dark Mode</span>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this, 'darkMode')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Danger Zone -->
+        <div class="danger-zone">
+            <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+            <button class="danger-btn" onclick="exportData()">
+                <i class="fas fa-download"></i> Export Data
+            </button>
+            <button class="danger-btn" onclick="deleteAccount()">
+                <i class="fas fa-trash"></i> Delete Account
+            </button>
+        </div>
+        
+        <!-- Developer Credit -->
+        <div class="dev-credit">
+            <p>Developed by</p>
+            <p class="dev-name">UNSEEN-TERMINATION</p>
+        </div>
+    </div>
+    
+    <!-- Edit Profile Modal -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+                <button class="close-modal" onclick="closeModal('editProfileModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="editFullName" value="Alex Developer">
+                    </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="editUsername" value="@dev_alex">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="editEmail" value="alex@daily-up.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="editLocation" value="San Francisco, CA">
+                    </div>
+                    <div class="form-group">
+                        <label>Bio</label>
+                        <textarea id="editBio" rows="3">Passionate developer building better habits every day.</textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('editProfileModal')">Cancel</button>
+                        <button type="submit" class="btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Skill Modal -->
+    <div class="modal" id="addSkillModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Add Skill</h2>
+                <button class="close-modal" onclick="closeModal('addSkillModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addSkillForm">
+                    <div class="form-group">
+                        <label>Skill Name</label>
+                        <input type="text" id="skillName" placeholder="e.g., TypeScript">
+                    </div>
+                    <div class="form-group">
+                        <label>Proficiency Level</label>
+                        <select id="skillLevel" style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-color);">
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                            <option value="Expert">Expert</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('addSkillModal')">Cancel</button>
+                        <button type="submit" class="btn-primary">Add Skill</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Avatar Modal -->
+    <div class="modal" id="avatarModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-camera"></i> Change Avatar</h2>
+                <button class="close-modal" onclick="closeModal('avatarModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem;">
+                    <div style="text-align: center; cursor: pointer;" onclick="selectAvatar('user-secret')">
+                        <i class="fas fa-user-secret" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <p>Hacker</p>
+                    </div>
+                    <div style="text-align: center; cursor: pointer;" onclick="selectAvatar('user-astronaut')">
+                        <i class="fas fa-user-astronaut" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <p>Astronaut</p>
+                    </div>
+                    <div style="text-align: center; cursor: pointer;" onclick="selectAvatar('user-ninja')">
+                        <i class="fas fa-user-ninja" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <p>Ninja</p>
+                    </div>
+                    <div style="text-align: center; cursor: pointer;" onclick="selectAvatar('user-tie')">
+                        <i class="fas fa-user-tie" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <p>Professional</p>
+                    </div>
+                    <div style="text-align: center; cursor: pointer;" onclick="selectAvatar('user-graduate')">
+                        <i class="fas fa-user-graduate" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <p>Graduate</p>
+                    </div>
+                    <div style="text-align: center; cursor: pointer;" onclick="selectAvatar('robot')">
+                        <i class="fas fa-robot" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <p>Robot</p>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-secondary" onclick="closeModal('avatarModal')">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Profile Page Functions
+        function openEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'flex';
+        }
+        
+        function openAddSkillModal() {
+            document.getElementById('addSkillModal').style.display = 'flex';
+        }
+        
+        function openAvatarModal() {
+            document.getElementById('avatarModal').style.display = 'flex';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        function toggleSetting(element, setting) {
+            element.classList.toggle('active');
+            const isActive = element.classList.contains('active');
+            showNotification(`${setting} ${isActive ? 'enabled' : 'disabled'}`);
+        }
+        
+        function removeSkill(skillName) {
+            if (confirm(`Remove ${skillName} from your skills?`)) {
+                showNotification(`${skillName} removed`);
+            }
+        }
+        
+        function selectAvatar(avatar) {
+            document.querySelector('.avatar-large i').className = `fas fa-${avatar}`;
+            closeModal('avatarModal');
+            showNotification('Avatar updated!');
+        }
+        
+        function exportData() {
+            const data = {
+                profile: {
+                    name: document.getElementById('fullName').textContent,
+                    username: document.getElementById('username').textContent,
+                    email: document.getElementById('email').textContent,
+                    location: document.getElementById('location').textContent
+                },
+                stats: {
+                    streak: document.getElementById('statStreak').textContent,
+                    completed: document.getElementById('statCompleted').textContent,
+                    longest: document.getElementById('statLongest').textContent,
+                    hours: document.getElementById('statHours').textContent
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'daily-up-profile.json';
+            a.click();
+            
+            showNotification('Data exported successfully!');
+        }
+        
+        function deleteAccount() {
+            if (confirm('Are you sure you want to delete your account? This cannot be undone!')) {
+                if (confirm('This will permanently delete all your data. Type "DELETE" to confirm:')) {
+                    showNotification('Account deletion feature coming soon');
+                }
+            }
+        }
+        
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px;
+                background: var(--primary-color); color: var(--dark-bg);
+                padding: 1rem 1.5rem; border-radius: 4px;
+                font-family: 'Courier New', monospace;
+                z-index: 9999; animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.remove(), 3000);
+        }
+        
+        // Form submissions
+        document.getElementById('editProfileForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            document.getElementById('fullName').textContent = document.getElementById('editFullName').value;
+            document.getElementById('username').textContent = document.getElementById('editUsername').value;
+            document.getElementById('email').textContent = document.getElementById('editEmail').value;
+            document.getElementById('location').textContent = document.getElementById('editLocation').value;
+            document.getElementById('bio').textContent = document.getElementById('editBio').value;
+            document.getElementById('profileName').textContent = document.getElementById('editFullName').value.split(' ')[0];
+            closeModal('editProfileModal');
+            showNotification('Profile updated!');
+        });
+        
+        document.getElementById('addSkillForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const skill = document.getElementById('skillName').value;
+            const level = document.getElementById('skillLevel').value;
+            if (skill) {
+                const skillTag = document.createElement('span');
+                skillTag.className = 'skill-tag';
+                skillTag.innerHTML = `${skill} <i class="fas fa-times" onclick="removeSkill('${skill}')"></i>`;
+                document.getElementById('skillsList').insertBefore(skillTag, document.querySelector('.add-skill'));
+                closeModal('addSkillModal');
+                document.getElementById('skillName').value = '';
+                showNotification(`Skill ${skill} added!`);
+            }
+        });
+        
+        // Load user data from localStorage
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+            document.getElementById('profileName').textContent = user.username || 'Developer';
+            document.getElementById('username').textContent = `@${user.username || 'developer'}`;
+            document.getElementById('email').textContent = user.email || 'user@daily-up.com';
+        }
+        
+        // Animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

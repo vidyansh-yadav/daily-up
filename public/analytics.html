@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics | Daily-Up</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Analytics Page Specific Styles */
+        :root {
+            --primary-color: #00ff00;
+            --secondary-color: #00ccff;
+            --dark-bg: #0a0a0a;
+            --terminal-bg: #1a1a1a;
+            --text-color: #ffffff;
+            --text-muted: #888888;
+            --border-color: #333333;
+            --success-color: #00ff00;
+            --warning-color: #ffaa00;
+            --error-color: #ff3333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--dark-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .analytics-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .analytics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .analytics-header h1 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .date-range {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .range-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .range-btn.active {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border-color: var(--primary-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .stat-content h3 {
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-content p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chart-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .insight-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .category-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .category-name {
+            width: 100px;
+            color: var(--text-color);
+        }
+
+        .category-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .category-fill {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .category-percent {
+            width: 50px;
+            color: var(--primary-color);
+            text-align: right;
+        }
+
+        .streak-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .streak-day {
+            aspect-ratio: 1;
+            background: var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .streak-day.completed {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+        }
+
+        .streak-day.missed {
+            background: rgba(255, 51, 51, 0.3);
+            color: var(--error-color);
+        }
+
+        .streak-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .streak-stat {
+            text-align: center;
+        }
+
+        .streak-stat h4 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .streak-stat p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .heatmap-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .heatmap-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .heatmap-header h2 {
+            color: var(--primary-color);
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(53, 1fr);
+            gap: 3px;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            background: var(--border-color);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.2);
+        }
+
+        .heatmap-cell.level-1 { background: rgba(0, 255, 0, 0.2); }
+        .heatmap-cell.level-2 { background: rgba(0, 255, 0, 0.4); }
+        .heatmap-cell.level-3 { background: rgba(0, 255, 0, 0.6); }
+        .heatmap-cell.level-4 { background: rgba(0, 255, 0, 0.8); }
+        .heatmap-cell.level-5 { background: var(--primary-color); }
+
+        .heatmap-legend {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+        }
+
+        .dev-credit {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        .dev-name {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .analytics-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .heatmap-grid {
+                grid-template-columns: repeat(26, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    
+    <div class="analytics-container">
+        <!-- Header -->
+        <div class="analytics-header">
+            <h1>
+                <i class="fas fa-chart-line"></i>
+                Analytics Dashboard
+            </h1>
+            <div class="date-range">
+                <button class="range-btn active" onclick="setRange('week')">Week</button>
+                <button class="range-btn" onclick="setRange('month')">Month</button>
+                <button class="range-btn" onclick="setRange('quarter')">Quarter</button>
+                <button class="range-btn" onclick="setRange('year')">Year</button>
+            </div>
+        </div>
+        
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="statCurrentStreak">7</h3>
+                    <p>Current Streak</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="statLongestStreak">15</h3>
+                    <p>Longest Streak</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="statCompletionRate">78%</h3>
+                    <p>Completion Rate</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="statTotalHours">124</h3>
+                    <p>Total Hours</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Progress Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2><i class="fas fa-chart-line"></i> Daily Progress</h2>
+                    <select id="progressChartRange" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-color); padding: 0.3rem;">
+                        <option value="7">Last 7 Days</option>
+                        <option value="30">Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Category Distribution -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2><i class="fas fa-chart-pie"></i> Categories</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Insights Grid -->
+        <div class="insights-grid">
+            <!-- Category Performance -->
+            <div class="insight-card">
+                <div class="insight-header">
+                    <i class="fas fa-tags"></i>
+                    <h3>Category Performance</h3>
+                </div>
+                <div class="category-stats" id="categoryStats">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+            
+            <!-- Streak Calendar -->
+            <div class="insight-card">
+                <div class="insight-header">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>Last 30 Days Streak</h3>
+                </div>
+                <div class="streak-calendar" id="streakCalendar">
+                    <!-- Filled by JS -->
+                </div>
+                <div class="streak-stats">
+                    <div class="streak-stat">
+                        <h4 id="bestStreak">12</h4>
+                        <p>Best</p>
+                    </div>
+                    <div class="streak-stat">
+                        <h4 id="currentStreak">7</h4>
+                        <p>Current</p>
+                    </div>
+                    <div class="streak-stat">
+                        <h4 id="totalCompleted">156</h4>
+                        <p>Completed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Heatmap -->
+        <div class="heatmap-container">
+            <div class="heatmap-header">
+                <h2><i class="fas fa-calendar-alt"></i> Year in Progress</h2>
+                <div class="heatmap-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--border-color);"></div>
+                        <span>No habits</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(0, 255, 0, 0.2);"></div>
+                        <span>1-2 habits</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(0, 255, 0, 0.4);"></div>
+                        <span>3-4 habits</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--primary-color);"></div>
+                        <span>5+ habits</span>
+                    </div>
+                </div>
+            </div>
+            <div class="heatmap-grid" id="heatmapGrid"></div>
+        </div>
+        
+        <!-- Developer Credit -->
+        <div class="dev-credit">
+            <p>Powered by Advanced Analytics Engine</p>
+            <p class="dev-name">UNSEEN-TERMINATION</p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Charts
+        let progressChart, categoryChart;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadCategoryStats();
+            loadStreakCalendar();
+            loadHeatmap();
+        });
+        
+        function initializeCharts() {
+            // Progress Chart
+            const progressCtx = document.getElementById('progressChart').getContext('2d');
+            progressChart = new Chart(progressCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Habits Completed',
+                        data: [3, 5, 4, 6, 5, 4, 2],
+                        borderColor: '#00ff00',
+                        backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#888' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#888' } }
+                    }
+                }
+            });
+            
+            // Category Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            categoryChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Coding', 'Fitness', 'Learning', 'Productivity'],
+                    datasets: [{
+                        data: [45, 25, 20, 10],
+                        backgroundColor: ['#00ff00', '#00ccff', '#ff00ff', '#ffff00'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#888' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function loadCategoryStats() {
+            const categories = [
+                { name: 'Coding', percentage: 45, count: 45 },
+                { name: 'Fitness', percentage: 25, count: 25 },
+                { name: 'Learning', percentage: 20, count: 20 },
+                { name: 'Productivity', percentage: 10, count: 10 }
+            ];
+            
+            const container = document.getElementById('categoryStats');
+            container.innerHTML = categories.map(cat => `
+                <div class="category-item">
+                    <span class="category-name">${cat.name}</span>
+                    <div class="category-bar">
+                        <div class="category-fill" style="width: ${cat.percentage}%"></div>
+                    </div>
+                    <span class="category-percent">${cat.percentage}%</span>
+                </div>
+            `).join('');
+        }
+        
+        function loadStreakCalendar() {
+            const calendar = document.getElementById('streakCalendar');
+            const days = 30;
+            let html = '';
+            
+            for (let i = 0; i < days; i++) {
+                const random = Math.random();
+                let status = '';
+                if (random > 0.7) status = 'completed';
+                else if (random < 0.2) status = 'missed';
+                
+                html += `<div class="streak-day ${status}">${i + 1}</div>`;
+            }
+            
+            calendar.innerHTML = html;
+        }
+        
+        function loadHeatmap() {
+            const heatmap = document.getElementById('heatmapGrid');
+            const weeks = 53;
+            let html = '';
+            
+            for (let i = 0; i < weeks * 7; i++) {
+                const random = Math.random();
+                let level = '';
+                if (random > 0.9) level = 'level-5';
+                else if (random > 0.7) level = 'level-4';
+                else if (random > 0.5) level = 'level-3';
+                else if (random > 0.3) level = 'level-2';
+                else if (random > 0.1) level = 'level-1';
+                
+                html += `<div class="heatmap-cell ${level}" title="Day ${i + 1}"></div>`;
+            }
+            
+            heatmap.innerHTML = html;
+        }
+        
+        function setRange(range) {
+            document.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update chart data based on range
+            let data;
+            switch(range) {
+                case 'week':
+                    data = [3, 5, 4, 6, 5, 4, 2];
+                    progressChart.data.labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    break;
+                case 'month':
+                    data = [3, 5, 4, 6, 5, 4, 2, 4, 5, 3, 6, 4, 5, 3, 4, 5, 6, 4, 3, 5, 4, 6, 5, 4, 3, 5, 4, 6, 5, 4];
+                    progressChart.data.labels = Array.from({length: 30}, (_, i) => `Day ${i+1}`);
+                    break;
+                case 'quarter':
+                    data = Array.from({length: 90}, () => Math.floor(Math.random() * 8) + 1);
+                    progressChart.data.labels = Array.from({length: 90}, (_, i) => `Day ${i+1}`);
+                    break;
+                case 'year':
+                    data = Array.from({length: 52}, () => Math.floor(Math.random() * 8) + 1);
+                    progressChart.data.labels = Array.from({length: 52}, (_, i) => `Week ${i+1}`);
+                    break;
+            }
+            
+            progressChart.data.datasets[0].data = data;
+            progressChart.update();
+            
+            showNotification(`Showing ${range} data`);
+        }
+        
+        // Chart range selector
+        document.getElementById('progressChartRange').addEventListener('change', function(e) {
+            const days = parseInt(e.target.value);
+            const data = Array.from({length: days}, () => Math.floor(Math.random() * 8) + 1);
+            progressChart.data.labels = Array.from({length: days}, (_, i) => `Day ${i+1}`);
+            progressChart.data.datasets[0].data = data;
+            progressChart.update();
+        });
+        
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px;
+                background: var(--primary-color); color: var(--dark-bg);
+                padding: 1rem 1.5rem; border-radius: 4px;
+                font-family: 'Courier New', monospace;
+                z-index: 9999; animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.remove(), 3000);
+        }
+        
+        // Animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
