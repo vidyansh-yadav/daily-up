@@ -9,23 +9,23 @@ class HabitCalendar {
         await this.loadHabits();
         this.setupCalendar();
     }
-    
     async loadHabits() {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3000/api/habits', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            if (response.ok) {
-                this.habits = await response.json();
+    try {
+        const token = localStorage.getItem('token');
+        const apiUrl = window.location.origin + '/api';
+        const response = await fetch(`${apiUrl}/habits`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-        } catch (error) {
-            console.error('Error loading habits for calendar:', error);
+        });
+        
+        if (response.ok) {
+            this.habits = await response.json();
         }
+    } catch (error) {
+        console.error('Error loading habits for calendar:', error);
     }
+}
     
     setupCalendar() {
         const calendarEl = document.getElementById('calendar');

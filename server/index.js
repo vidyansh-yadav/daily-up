@@ -1,10 +1,11 @@
 ﻿// ==========================================
-// DAILY-UP SERVER - MAIN FILE
+// DAILY-UP SERVER - WITH DATABASE
 // Developed by: UNSEEN-TERMINATION
 // ==========================================
 
 require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 
@@ -23,11 +24,15 @@ app.use(express.static(path.join(__dirname, '../public')));
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
+// Habit routes (add these later)
+// const habitRoutes = require('./routes/habits');
+// app.use('/api/habits', habitRoutes);
+
 // Test route
 app.get('/api/test', (req, res) => {
     res.json({ 
         status: 'online',
-        message: 'Server is running!',
+        message: 'Server is running with database!',
         developer: 'UNSEEN-TERMINATION',
         timestamp: new Date().toISOString()
     });
@@ -45,17 +50,43 @@ app.get('/login', (req, res) => {
 app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/register.html'));
 });
-// Profile page route
+
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/dashboard.html'));
+});
+
 app.get('/profile', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/profile.html'));
 });
 
-// Analytics page route
 app.get('/analytics', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/analytics.html'));
 });
-app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/dashboard.html'));
+
+// ========== DATABASE CONNECTION ==========
+const MONGODB_URI = process.env.MONGODB_URI;
+
+console.log('🔌 Connecting to MongoDB Atlas...');
+console.log('URI:', MONGODB_URI ? '✓ Found' : '✗ Not found');
+
+if (!MONGODB_URI) {
+    console.error('❌ MONGODB_URI environment variable is not set!');
+    process.exit(1);
+}
+
+mongoose.connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => {
+    console.log('✅ MongoDB Atlas Connected Successfully!');
+    console.log('📊 Database: daily-up');
+    console.log('💾 Data will be saved permanently');
+})
+.catch(err => {
+    console.error('❌ MongoDB Connection Error:', err.message);
+    console.log('⚠️  Please check your connection string and network');
+    process.exit(1);
 });
 
 // ========== START SERVER ==========
@@ -75,9 +106,9 @@ app.listen(PORT, () => {
     console.log(`🔑 Login: http://localhost:${PORT}/login`);
     console.log(`📝 Register: http://localhost:${PORT}/register`);
     console.log(`📈 Dashboard: http://localhost:${PORT}/dashboard`);
-    console.log('\n📧 Test Credentials:');
-    console.log('   Email: test@daily-up.com');
-    console.log('   Password: password123');
-    console.log('⚠️  Running WITHOUT MongoDB - Data not persistent');
+    console.log(`👤 Profile: http://localhost:${PORT}/profile`);
+    console.log(`📊 Analytics: http://localhost:${PORT}/analytics`);
+    console.log('\n💾 Database: MongoDB Atlas Connected');
+    console.log('✅ Data will be saved permanently');
     console.log('==========================================');
 });

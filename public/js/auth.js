@@ -1,5 +1,8 @@
 // API base URL
-const API_URL = 'http://localhost:3000/api';
+// API base URL - Works on localhost and render
+const API_URL = window.location.origin + '/api';
+
+// ... rest of the code remains same
 
 // Check if user is logged in
 function checkAuth() {
