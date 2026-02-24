@@ -1,5 +1,5 @@
 ﻿// ==========================================
-// DAILY-UP SERVER - WITH DATABASE
+// DAILY-UP SERVER - FINAL WORKING
 // Developed by: UNSEEN-TERMINATION
 // ==========================================
 
@@ -22,25 +22,23 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // ========== ROUTES ==========
 const authRoutes = require('./routes/auth');
-app.use('/api/auth', authRoutes);
+const habitsRoutes = require('./routes/habits'); // ADD THIS LINE
 
-// Habit routes (add these later)
-// const habitRoutes = require('./routes/habits');
-// app.use('/api/habits', habitRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/habits', habitsRoutes); // ADD THIS LINE
 
 // Test route
 app.get('/api/test', (req, res) => {
     res.json({ 
         status: 'online',
-        message: 'Server is running with database!',
-        developer: 'UNSEEN-TERMINATION',
-        timestamp: new Date().toISOString()
+        message: 'Server is running',
+        time: new Date().toISOString()
     });
 });
 
 // ========== HTML ROUTES ==========
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
+    res.sendFile(path.join(__dirname, '../public/intro.html'));
 });
 
 app.get('/login', (req, res) => {
@@ -55,60 +53,40 @@ app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/dashboard.html'));
 });
 
-app.get('/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/profile.html'));
+app.get('/intro', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/intro.html'));
 });
 
-app.get('/analytics', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/analytics.html'));
-});
-
-// ========== DATABASE CONNECTION ==========
+// ========== DATABASE ==========
 const MONGODB_URI = process.env.MONGODB_URI;
 
-console.log('🔌 Connecting to MongoDB Atlas...');
-console.log('URI:', MONGODB_URI ? '✓ Found' : '✗ Not found');
-
-if (!MONGODB_URI) {
-    console.error('❌ MONGODB_URI environment variable is not set!');
-    process.exit(1);
-}
+console.log('🔌 Connecting to MongoDB...');
 
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
 .then(() => {
-    console.log('✅ MongoDB Atlas Connected Successfully!');
-    console.log('📊 Database: daily-up');
-    console.log('💾 Data will be saved permanently');
+    console.log('✅ MongoDB Connected');
 })
 .catch(err => {
-    console.error('❌ MongoDB Connection Error:', err.message);
-    console.log('⚠️  Please check your connection string and network');
+    console.error('❌ MongoDB Error:', err.message);
     process.exit(1);
 });
 
-// ========== START SERVER ==========
+// ========== START ==========
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`
-╔══════════════════════════════════════════════════════╗
-║               🚀 DAILY-UP SERVER                      ║
-║               👨‍💻 UNSEEN-TERMINATION                  ║
-╚══════════════════════════════════════════════════════╝
+╔══════════════════════════════════════╗
+║    🚀 DAILY-UP SERVER STARTED        ║
+║    👨‍💻 UNSEEN-TERMINATION            ║
+╚══════════════════════════════════════╝
     `);
-    console.log(`📍 Server: http://localhost:${PORT}`);
-    console.log(`📊 Test API: http://localhost:${PORT}/api/test`);
-    console.log(`🔐 Auth API: http://localhost:${PORT}/api/auth/test`);
-    console.log(`🏠 Home: http://localhost:${PORT}`);
+    console.log(`📍 http://localhost:${PORT}`);
+    console.log(`📡 API: http://localhost:${PORT}/api/test`);
     console.log(`🔑 Login: http://localhost:${PORT}/login`);
     console.log(`📝 Register: http://localhost:${PORT}/register`);
-    console.log(`📈 Dashboard: http://localhost:${PORT}/dashboard`);
-    console.log(`👤 Profile: http://localhost:${PORT}/profile`);
-    console.log(`📊 Analytics: http://localhost:${PORT}/analytics`);
-    console.log('\n💾 Database: MongoDB Atlas Connected');
-    console.log('✅ Data will be saved permanently');
-    console.log('==========================================');
+    console.log(`📊 Dashboard: http://localhost:${PORT}/dashboard`);
 });

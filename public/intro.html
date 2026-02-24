@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily-Up - Developer Habit Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #fff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0,255,0,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0,255,0,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .intro-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .intro-card {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid #00ff00;
+            border-radius: 12px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0,255,0,0.2);
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #333;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27ca3f; }
+
+        .terminal-title {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo i {
+            font-size: 4rem;
+            color: #00ff00;
+            margin-bottom: 1rem;
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            color: #00ff00;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo p {
+            color: #888;
+        }
+
+        .command-line {
+            background: #000;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 2rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .command-prompt {
+            color: #00ff00;
+            margin-right: 10px;
+        }
+
+        .command-text {
+            color: #fff;
+        }
+
+        .output {
+            color: #888;
+            margin-left: 20px;
+            margin-top: 5px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .feature-item {
+            padding: 0.8rem;
+            background: rgba(0,255,0,0.05);
+            border: 1px solid #333;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .feature-item i {
+            color: #00ff00;
+            margin-right: 5px;
+        }
+
+        .welcome-message {
+            background: rgba(0,255,0,0.1);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .welcome-message h2 {
+            color: #00ff00;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,255,0,0.2);
+        }
+
+        .progress-steps {
+            margin: 2rem 0;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 6px;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: #00ff00;
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .step-text {
+            flex: 1;
+        }
+
+        .step-status {
+            color: #00ff00;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #333;
+            color: #888;
+        }
+
+        .dev-name {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @media (max-width: 600px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    
+    <div class="intro-wrapper">
+        <div class="intro-card">
+            <div class="terminal-header">
+                <div class="terminal-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span class="terminal-title">daily-up@setup:~</span>
+            </div>
+
+            <div class="logo">
+                <i class="fas fa-terminal"></i>
+                <h1>DAILY-UP</h1>
+                <p>Developer Habit Tracker</p>
+            </div>
+
+            <div class="command-line">
+                <div>
+                    <span class="command-prompt">$</span>
+                    <span class="command-text">./init-system.sh</span>
+                </div>
+                <div class="output">>> Initializing Daily-Up environment...</div>
+                <div class="output">>> Checking dependencies...</div>
+                <div class="output">>> <span style="color: #00ff00;">System ready!</span></div>
+            </div>
+
+            <div class="welcome-message">
+                <h2>Welcome to Daily-Up!</h2>
+                <p>Your personal habit tracking system for developers</p>
+            </div>
+
+            <div class="progress-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Create your account</div>
+                    <div class="step-status"><i class="fas fa-circle blink"></i></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Add your first habit</div>
+                    <div class="step-status"><i class="fas fa-circle"></i></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">Start tracking daily</div>
+                    <div class="step-status"><i class="fas fa-circle"></i></div>
+                </div>
+            </div>
+
+            <div class="features">
+                <div class="feature-item">
+                    <i class="fas fa-calendar-alt"></i> Calendar
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-chart-line"></i> Analytics
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-fire"></i> Streaks
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-clock"></i> Timetable
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <a href="/register" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Get Started
+                </a>
+                <a href="/login" class="btn btn-secondary">
+                    <i class="fas fa-key"></i> Login
+                </a>
+            </div>
+
+            <div class="footer">
+                <p>Developed by <span class="dev-name">UNSEEN-TERMINATION</span></p>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem;">© 2026 Daily-Up. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -73,7 +73,7 @@ router.put('/:id', verifyToken, async (req, res) => {
     }
 });
 
-// Mark habit as completed
+// Mark habit as completed - REAL-TIME UPDATE
 router.post('/:id/complete', verifyToken, async (req, res) => {
     try {
         const { date, timeSpent, notes } = req.body;
@@ -98,7 +98,7 @@ router.post('/:id/complete', verifyToken, async (req, res) => {
         if (!alreadyCompleted) {
             habit.completedDates.push({
                 date: completionDate,
-                timeSpent: timeSpent || 0,
+                timeSpent: timeSpent || 30, // default 30 minutes
                 notes: notes || ''
             });
             
@@ -137,12 +137,23 @@ router.post('/:id/complete', verifyToken, async (req, res) => {
                 Math.round((recentCompletions.length / daysSinceStart) * 100) : 0;
             
             await habit.save();
+            
+            // Return updated habit for real-time update
+            res.json({
+                message: 'Habit marked as completed',
+                habit,
+                stats: {
+                    streak: habit.statistics.streak,
+                    totalCompletions: habit.statistics.totalCompletions,
+                    successRate: habit.statistics.successRate
+                }
+            });
+        } else {
+            res.json({ 
+                message: 'Already completed today',
+                habit 
+            });
         }
-        
-        res.json({
-            message: alreadyCompleted ? 'Already completed today' : 'Habit marked as completed',
-            habit
-        });
     } catch (error) {
         console.error('Complete habit error:', error);
         res.status(500).json({ error: 'Server error' });
@@ -168,7 +179,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
     }
 });
 
-// Get statistics
+// Get statistics - REAL-TIME
 router.get('/stats', verifyToken, async (req, res) => {
     try {
         const habits = await Habit.find({ userId: req.userId });
@@ -180,7 +191,9 @@ router.get('/stats', verifyToken, async (req, res) => {
             averageSuccessRate: 0,
             streaks: [],
             weeklyProgress: {},
-            categoryDistribution: {}
+            categoryDistribution: {},
+            schoolSubjects: [],
+            totalStudyTime: 0
         };
         
         const today = new Date();
@@ -189,6 +202,11 @@ router.get('/stats', verifyToken, async (req, res) => {
         habits.forEach(habit => {
             stats.totalCompletions += habit.statistics.totalCompletions;
             stats.averageSuccessRate += habit.statistics.successRate;
+            
+            // Calculate total study time
+            habit.completedDates.forEach(c => {
+                stats.totalStudyTime += c.timeSpent || 30;
+            });
             
             // Check if completed today
             const completedToday = habit.completedDates.some(completion => {
@@ -204,6 +222,16 @@ router.get('/stats', verifyToken, async (req, res) => {
             // Add to category distribution
             stats.categoryDistribution[habit.category] = 
                 (stats.categoryDistribution[habit.category] || 0) + 1;
+            
+            // Track school subjects
+            if (habit.isSchoolSubject) {
+                stats.schoolSubjects.push({
+                    title: habit.title,
+                    subjectCode: habit.subjectCode,
+                    completed: habit.completedDates.length,
+                    streak: habit.statistics.streak
+                });
+            }
             
             // Add streak
             stats.streaks.push({
@@ -240,6 +268,50 @@ router.get('/stats', verifyToken, async (req, res) => {
         res.json(stats);
     } catch (error) {
         console.error('Get stats error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Get today's timetable
+router.get('/timetable/today', verifyToken, async (req, res) => {
+    try {
+        const today = new Date();
+        const dayName = today.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        
+        const habits = await Habit.find({ 
+            userId: req.userId,
+            [`schedule.${dayName}`]: true
+        }).sort({ 'timeSlot.startTime': 1 });
+        
+        res.json(habits);
+    } catch (error) {
+        console.error('Get timetable error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Update timetable
+router.post('/timetable/update', verifyToken, async (req, res) => {
+    try {
+        const { day, slots } = req.body;
+        
+        // Update each habit's time slot
+        for (const slot of slots) {
+            await Habit.findOneAndUpdate(
+                { 
+                    _id: slot.habitId, 
+                    userId: req.userId 
+                },
+                { 
+                    'timeSlot.startTime': slot.startTime,
+                    'timeSlot.endTime': slot.endTime
+                }
+            );
+        }
+        
+        res.json({ message: 'Timetable updated successfully' });
+    } catch (error) {
+        console.error('Update timetable error:', error);
         res.status(500).json({ error: 'Server error' });
     }
 });
