@@ -1,6 +1,6 @@
 // ==========================================
 // COMPLETE DASHBOARD - FULLY WORKING
-// With Gamification, XP, Level Up & Music
+// With Skills Focus, Profile Picture Upload
 // Developed by: UNSEEN-TERMINATION
 // ==========================================
 
@@ -18,6 +18,7 @@ class Dashboard {
             totalStudyTime: 0
         };
         this.gamification = null;
+        this.skills = [];
         this.apiUrl = window.location.origin + '/api';
         this.weeklyChart = null;
         this.calendar = null;
@@ -57,6 +58,7 @@ class Dashboard {
             await this.loadHabits();
             await this.loadStats();
             await this.loadGamification();
+            await this.loadSkills();
             
             // Update UI
             this.updateUserProfile();
@@ -70,6 +72,7 @@ class Dashboard {
             this.setupEventListeners();
             this.addWatermark();
             this.setupMusicSystem();
+            this.setupProfilePictureUpload();
             
             this.hideLoading();
             
@@ -79,7 +82,6 @@ class Dashboard {
             this.hideLoading();
             this.showError('Failed to load dashboard');
             
-            // If token invalid, redirect to login
             if (error.message === 'Invalid token') {
                 localStorage.clear();
                 window.location.href = '/login';
@@ -104,9 +106,594 @@ class Dashboard {
         document.body.appendChild(watermark);
     }
 
+    // ========== PROFILE PICTURE UPLOAD ==========
+    setupProfilePictureUpload() {
+        const avatar = document.getElementById('userAvatar');
+        if (!avatar) return;
+        
+        // Create upload button
+        const uploadBtn = document.createElement('div');
+        uploadBtn.style.cssText = `
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid var(--dark-bg);
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        `;
+        uploadBtn.innerHTML = '<i class="fas fa-camera"></i>';
+        uploadBtn.title = 'Change profile picture';
+        
+        // Make avatar container relative
+        avatar.style.position = 'relative';
+        avatar.appendChild(uploadBtn);
+        
+        // Create file input
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+        
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                this.uploadProfilePicture(file);
+            }
+        });
+        
+        // Load saved profile picture
+        this.loadProfilePicture();
+    }
+    
+    uploadProfilePicture(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const imageData = e.target.result;
+            
+            // Save to localStorage
+            localStorage.setItem('profilePicture', imageData);
+            
+            // Update avatar
+            this.updateAvatar(imageData);
+            
+            this.showNotification('✅ Profile picture updated!', 'success');
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    loadProfilePicture() {
+        const savedPicture = localStorage.getItem('profilePicture');
+        if (savedPicture) {
+            this.updateAvatar(savedPicture);
+        }
+    }
+    
+    updateAvatar(imageData) {
+        const avatar = document.getElementById('userAvatar');
+        if (avatar) {
+            avatar.innerHTML = `<img src="${imageData}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        }
+        
+        // Also update profile page avatar if exists
+        const profileAvatar = document.getElementById('profileAvatar');
+        if (profileAvatar) {
+            profileAvatar.innerHTML = `<img src="${imageData}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        }
+    }
+
+    // ========== SKILLS SYSTEM ==========
+    async loadSkills() {
+        try {
+            // Load from localStorage first
+            const savedSkills = localStorage.getItem('dailyup_skills');
+            if (savedSkills) {
+                this.skills = JSON.parse(savedSkills);
+            } else {
+                // Default skills
+                this.skills = [
+                    // Coding Skills
+                    {
+                        category: '💻 Coding',
+                        items: [
+                            { name: 'JavaScript', level: 'Intermediate', progress: 65, icon: 'fab fa-js', color: '#f7df1e', completed: 45, hours: 120 },
+                            { name: 'Python', level: 'Beginner', progress: 30, icon: 'fab fa-python', color: '#3776ab', completed: 21, hours: 45 },
+                            { name: 'React', level: 'Intermediate', progress: 55, icon: 'fab fa-react', color: '#61dafb', completed: 38, hours: 85 }
+                        ]
+                    },
+                    // Academic Skills
+                    {
+                        category: '📚 Academics',
+                        items: [
+                            { name: 'Mathematics', level: 'Advanced', progress: 85, icon: 'fas fa-calculator', color: '#00ff00', completed: 60, hours: 200 },
+                            { name: 'Physics', level: 'Intermediate', progress: 60, icon: 'fas fa-atom', color: '#00ccff', completed: 42, hours: 120 },
+                            { name: 'Chemistry', level: 'Beginner', progress: 35, icon: 'fas fa-flask', color: '#ffaa00', completed: 25, hours: 60 }
+                        ]
+                    },
+                    // Soft Skills
+                    {
+                        category: '🤝 Soft Skills',
+                        items: [
+                            { name: 'Communication', level: 'Intermediate', progress: 70, icon: 'fas fa-comments', color: '#00ff00', completed: 49, hours: 90 },
+                            { name: 'Leadership', level: 'Beginner', progress: 40, icon: 'fas fa-users', color: '#00ccff', completed: 28, hours: 50 }
+                        ]
+                    },
+                    // Fitness
+                    {
+                        category: '💪 Fitness',
+                        items: [
+                            { name: 'Gym', level: 'Intermediate', progress: 75, icon: 'fas fa-dumbbell', color: '#ffaa00', completed: 52, hours: 150 },
+                            { name: 'Yoga', level: 'Beginner', progress: 25, icon: 'fas fa-pray', color: '#00ff00', completed: 18, hours: 30 }
+                        ]
+                    }
+                ];
+                localStorage.setItem('dailyup_skills', JSON.stringify(this.skills));
+            }
+        } catch (error) {
+            console.error('Failed to load skills:', error);
+        }
+    }
+
+    renderSkills() {
+        const grid = document.getElementById('skillsGrid');
+        if (!grid) {
+            console.log('Skills grid not found!');
+            return;
+        }
+
+        // Clear loading state
+        grid.innerHTML = '';
+
+        if (!this.skills || this.skills.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-skills">
+                    <i class="fas fa-brain"></i>
+                    <h3>No skills yet</h3>
+                    <p>Start tracking your skills by adding your first skill!</p>
+                    <button class="btn-primary" onclick="dashboard.showAddSkillModal()">
+                        <i class="fas fa-plus"></i> Add Your First Skill
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        
+        this.skills.forEach(category => {
+            // Category header
+            html += `
+                <div class="category-header">
+                    <h3>${category.category}</h3>
+                </div>
+            `;
+            
+            // Skills in this category
+            category.items.forEach(skill => {
+                // Calculate progress from habits
+                const habitProgress = this.calculateSkillProgress(skill.name);
+                const finalProgress = habitProgress > 0 ? habitProgress : skill.progress;
+                
+                html += `
+                    <div class="skill-card" data-skill="${skill.name}">
+                        <div class="skill-header">
+                            <div class="skill-icon" style="background: ${skill.color}20; color: ${skill.color};">
+                                <i class="${skill.icon}"></i>
+                            </div>
+                            <span class="skill-level" style="background: ${skill.color}; color: #000;">
+                                ${skill.level}
+                            </span>
+                        </div>
+                        <h4>${skill.name}</h4>
+                        <div class="skill-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${finalProgress}%; background: ${skill.color};"></div>
+                            </div>
+                            <div class="skill-stats">
+                                <span><i class="fas fa-check-circle"></i> ${skill.completed || 0} tasks</span>
+                                <span><i class="fas fa-clock"></i> ${skill.hours || 0}h</span>
+                            </div>
+                        </div>
+                        <div class="skill-actions">
+                            <button class="btn-small" onclick="dashboard.logSkill('${skill.name}')">
+                                <i class="fas fa-plus"></i> Log
+                            </button>
+                            <button class="btn-small" onclick="dashboard.viewSkillDetails('${skill.name}')">
+                                <i class="fas fa-chart-line"></i> Details
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
+        // Add "Add New Skill" card
+        html += `
+            <div class="add-skill-card" onclick="dashboard.showAddSkillModal()">
+                <i class="fas fa-plus-circle"></i>
+                <h4>Add New Skill</h4>
+                <p>Track a new skill</p>
+            </div>
+        `;
+
+        grid.innerHTML = html;
+    }
+
+    calculateSkillProgress(skillName) {
+        if (!this.habits || this.habits.length === 0) return 0;
+        
+        const relatedHabits = this.habits.filter(h => 
+            h.title.toLowerCase().includes(skillName.toLowerCase()) ||
+            h.category?.toLowerCase().includes(skillName.toLowerCase())
+        );
+        
+        if (relatedHabits.length === 0) return 0;
+        
+        const totalCompletions = relatedHabits.reduce((sum, h) => 
+            sum + (h.statistics?.totalCompletions || 0), 0
+        );
+        
+        return Math.min(100, totalCompletions * 5);
+    }
+
+    logSkill(skillName) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+        
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-pen"></i> Log ${skillName}</h2>
+                    <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Hours spent today</label>
+                        <input type="number" id="logHours" min="0.5" step="0.5" value="1" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Notes (optional)</label>
+                        <textarea id="logNotes" class="form-control" rows="3" placeholder="What did you learn?"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-submit" onclick="dashboard.saveSkillLog('${skillName}')">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                        <button class="btn-cancel" onclick="this.closest('.modal').remove()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    }
+
+    saveSkillLog(skillName) {
+        const hours = parseFloat(document.getElementById('logHours')?.value) || 1;
+        const notes = document.getElementById('logNotes')?.value || '';
+        
+        // Update skill data
+        const category = this.skills.find(c => 
+            c.items.some(s => s.name === skillName)
+        );
+        
+        if (category) {
+            const skill = category.items.find(s => s.name === skillName);
+            if (skill) {
+                skill.hours = (skill.hours || 0) + hours;
+                skill.completed = (skill.completed || 0) + 1;
+                
+                // Update progress
+                skill.progress = Math.min(100, skill.progress + (hours * 2));
+                
+                // Update level based on progress
+                if (skill.progress >= 80) skill.level = 'Advanced';
+                else if (skill.progress >= 40) skill.level = 'Intermediate';
+                else skill.level = 'Beginner';
+            }
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('dailyup_skills', JSON.stringify(this.skills));
+        
+        // Close modal
+        document.querySelector('.modal')?.remove();
+        
+        // Refresh display
+        this.renderSkills();
+        
+        this.showNotification(`✅ Logged ${hours}h for ${skillName}`, 'success');
+    }
+
+    viewSkillDetails(skillName) {
+        // Find skill
+        let skill = null;
+        for (const category of this.skills) {
+            const found = category.items.find(s => s.name === skillName);
+            if (found) {
+                skill = found;
+                break;
+            }
+        }
+        
+        if (!skill) {
+            this.showNotification('Skill not found', 'error');
+            return;
+        }
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+        
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-chart-line"></i> ${skillName} Details</h2>
+                    <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Current Level:</span>
+                            <span style="color: var(--primary-color); font-weight: bold;">${skill.level}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Progress:</span>
+                            <span style="color: var(--primary-color); font-weight: bold;">${skill.progress}%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Total Hours:</span>
+                            <span style="color: var(--primary-color); font-weight: bold;">${skill.hours || 0}h</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Tasks Completed:</span>
+                            <span style="color: var(--primary-color); font-weight: bold;">${skill.completed || 0}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.8rem;">📈 Recommendations</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            ${this.getSkillRecommendations(skillName, skill.level)}
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                        <button class="btn-small" style="flex: 1;" onclick="dashboard.logSkill('${skillName}'); this.closest('.modal').remove()">
+                            <i class="fas fa-plus"></i> Log Hours
+                        </button>
+                        <button class="btn-small" style="flex: 1; background: #ff3333;" onclick="dashboard.deleteSkill('${skillName}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                    
+                    <button class="btn-submit" style="margin-top: 1rem;" onclick="this.closest('.modal').remove()">Close</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    }
+
+    getSkillRecommendations(skillName, level) {
+        const recommendations = {
+            'JavaScript': {
+                'Beginner': [
+                    '📘 Complete JavaScript basics on freeCodeCamp',
+                    '🎯 Build a simple calculator app',
+                    '📺 Watch "JavaScript for Beginners" tutorials'
+                ],
+                'Intermediate': [
+                    '🚀 Learn ES6+ features',
+                    '🔧 Build a todo app with localStorage',
+                    '📚 Read "You Don\'t Know JS" book'
+                ],
+                'Advanced': [
+                    '⚡ Learn design patterns in JS',
+                    '🏗️ Build a full-stack application',
+                    '📝 Contribute to open source'
+                ]
+            },
+            'Python': {
+                'Beginner': [
+                    '🐍 Complete Python basics on Codecademy',
+                    '📊 Work with lists and dictionaries',
+                    '🔧 Build a simple calculator'
+                ],
+                'Intermediate': [
+                    '📈 Learn pandas for data analysis',
+                    '🌐 Build a web app with Flask',
+                    '📚 Read "Automate the Boring Stuff"'
+                ]
+            },
+            'Mathematics': {
+                'Beginner': [
+                    '🧮 Practice algebra daily',
+                    '📐 Learn geometry basics',
+                    '🔢 Solve 10 problems daily'
+                ],
+                'Intermediate': [
+                    '📈 Study calculus derivatives',
+                    '📊 Learn statistics',
+                    '🎯 Practice on Khan Academy'
+                ]
+            }
+        };
+        
+        const defaultRecs = {
+            'Beginner': [
+                '📖 Practice 30 minutes daily',
+                '📝 Take notes while learning',
+                '🎯 Set weekly goals'
+            ],
+            'Intermediate': [
+                '🚀 Work on real projects',
+                '👥 Join study groups',
+                '📚 Read advanced materials'
+            ],
+            'Advanced': [
+                '🏆 Teach others',
+                '🎯 Create complex projects',
+                '📝 Write blog posts'
+            ]
+        };
+        
+        const recs = recommendations[skillName]?.[level] || defaultRecs[level] || defaultRecs['Beginner'];
+        
+        return recs.map(r => `<li style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-chevron-right" style="color: var(--primary-color); font-size: 0.8rem;"></i>
+            ${r}
+        </li>`).join('');
+    }
+
+    deleteSkill(skillName) {
+        if (!confirm(`Are you sure you want to delete ${skillName}?`)) return;
+        
+        // Find and remove skill
+        for (let i = 0; i < this.skills.length; i++) {
+            const category = this.skills[i];
+            const index = category.items.findIndex(s => s.name === skillName);
+            if (index !== -1) {
+                category.items.splice(index, 1);
+                break;
+            }
+        }
+        
+        // Remove empty categories
+        this.skills = this.skills.filter(c => c.items.length > 0);
+        
+        // Save to localStorage
+        localStorage.setItem('dailyup_skills', JSON.stringify(this.skills));
+        
+        // Close any open modals
+        document.querySelector('.modal')?.remove();
+        
+        // Refresh display
+        this.renderSkills();
+        
+        this.showNotification(`✅ ${skillName} deleted`, 'success');
+    }
+
+    showAddSkillModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+        
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 450px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-plus-circle"></i> Add New Skill</h2>
+                    <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Skill Name *</label>
+                        <input type="text" id="newSkillName" class="form-control" placeholder="e.g., TypeScript, Guitar, etc.">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="newSkillCategory" class="form-control">
+                            <option value="💻 Coding">💻 Coding</option>
+                            <option value="📚 Academics">📚 Academics</option>
+                            <option value="🤝 Soft Skills">🤝 Soft Skills</option>
+                            <option value="💪 Fitness">💪 Fitness</option>
+                            <option value="🎨 Creative">🎨 Creative</option>
+                            <option value="🌎 Languages">🌎 Languages</option>
+                            <option value="🎯 Other">🎯 Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Icon</label>
+                        <select id="newSkillIcon" class="form-control">
+                            <option value="fab fa-js">JavaScript</option>
+                            <option value="fab fa-python">Python</option>
+                            <option value="fas fa-calculator">Math</option>
+                            <option value="fas fa-flask">Science</option>
+                            <option value="fas fa-dumbbell">Fitness</option>
+                            <option value="fas fa-guitar">Music</option>
+                            <option value="fas fa-paint-brush">Art</option>
+                            <option value="fas fa-code">Coding</option>
+                            <option value="fas fa-book">Reading</option>
+                            <option value="fas fa-language">Language</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        <input type="color" id="newSkillColor" class="form-control" value="#00ff00" style="height: 50px;">
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-submit" onclick="dashboard.saveNewSkill()">
+                            <i class="fas fa-save"></i> Add Skill
+                        </button>
+                        <button class="btn-cancel" onclick="this.closest('.modal').remove()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    }
+
+    saveNewSkill() {
+        const name = document.getElementById('newSkillName')?.value;
+        const category = document.getElementById('newSkillCategory')?.value;
+        const icon = document.getElementById('newSkillIcon')?.value;
+        const color = document.getElementById('newSkillColor')?.value;
+        
+        if (!name) {
+            this.showNotification('Please enter skill name', 'error');
+            return;
+        }
+        
+        // Find or create category
+        let categoryObj = this.skills.find(c => c.category === category);
+        if (!categoryObj) {
+            categoryObj = {
+                category: category,
+                items: []
+            };
+            this.skills.push(categoryObj);
+        }
+        
+        // Add new skill
+        categoryObj.items.push({
+            name: name,
+            level: 'Beginner',
+            progress: 0,
+            icon: icon || 'fas fa-star',
+            color: color || '#00ff00',
+            completed: 0,
+            hours: 0
+        });
+        
+        // Save to localStorage
+        localStorage.setItem('dailyup_skills', JSON.stringify(this.skills));
+        
+        // Close modal
+        document.querySelector('.modal')?.remove();
+        
+        // Refresh display
+        this.renderSkills();
+        
+        this.showNotification(`✅ ${name} added to skills!`, 'success');
+    }
+
     // ========== MUSIC SYSTEM ==========
     setupMusicSystem() {
-        // Create music controls
         const musicControl = document.createElement('div');
         musicControl.style.cssText = `
             position: fixed;
@@ -164,24 +751,16 @@ class Dashboard {
         
         document.body.appendChild(musicControl);
         
-        // Create audio elements
-        this.lofiAudio = new Audio();
-        this.codingAudio = new Audio();
-        
-        // Ye links aap apni website ke hisaab se change kar sakte ho
-        // Abhi placeholder links hain - aap apni music files ke links yahan daal dena
-        this.lofiAudio.src = '/music/tuyo.mp3'; // Lo-fi beat
-        this.codingAudio.src = '/music/coding.mp3'; // Electronic beat
+        this.lofiAudio = new Audio('/music/tuyo.mp3');
+        this.codingAudio = new Audio('/music/coding.mp3');
         
         this.lofiAudio.loop = true;
         this.codingAudio.loop = true;
         this.lofiAudio.volume = 0.3;
         this.codingAudio.volume = 0.3;
         
-        // Store current audio
         this.currentAudio = null;
         
-        // Setup event listeners
         const musicSelect = document.getElementById('musicSelect');
         const musicPlayPause = document.getElementById('musicPlayPause');
         const musicVolume = document.getElementById('musicVolume');
@@ -206,7 +785,6 @@ class Dashboard {
     }
     
     switchMusic(type) {
-        // Stop current music
         if (this.lofiAudio) {
             this.lofiAudio.pause();
             this.lofiAudio.currentTime = 0;
@@ -216,7 +794,6 @@ class Dashboard {
             this.codingAudio.currentTime = 0;
         }
         
-        // Play selected music
         if (type === 'lofi') {
             this.currentAudio = this.lofiAudio;
             this.currentAudio.play().catch(e => console.log('Audio play failed:', e));
@@ -233,7 +810,6 @@ class Dashboard {
     
     toggleMusic() {
         if (!this.currentAudio) {
-            // If no music selected, select default
             const select = document.getElementById('musicSelect');
             if (select) {
                 select.value = 'lofi';
@@ -264,9 +840,7 @@ class Dashboard {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
-            if (!res.ok) {
-                throw new Error('Invalid token');
-            }
+            if (!res.ok) throw new Error('Invalid token');
             
             const data = await res.json();
             this.user = data.user;
@@ -411,7 +985,6 @@ class Dashboard {
     }
 
     renderGamification() {
-        // Update level display
         const levelEl = document.getElementById('userLevel');
         if (levelEl && this.gamification) {
             levelEl.innerHTML = `
@@ -421,7 +994,6 @@ class Dashboard {
             `;
         }
         
-        // Update XP bar
         const xpBar = document.getElementById('xpBar');
         if (xpBar && this.gamification) {
             const currentXP = this.gamification.gamification?.xp || 0;
@@ -439,7 +1011,6 @@ class Dashboard {
             `;
         }
         
-        // Update recent achievements
         const recentEl = document.getElementById('recentAchievements');
         if (recentEl && this.gamification?.achievements) {
             const recent = this.gamification.achievements
@@ -583,9 +1154,7 @@ class Dashboard {
         const ctx = document.getElementById('weeklyChart');
         if (!ctx || typeof Chart === 'undefined') return;
 
-        if (this.weeklyChart) {
-            this.weeklyChart.destroy();
-        }
+        if (this.weeklyChart) this.weeklyChart.destroy();
 
         const weekly = this.stats.weeklyProgress || {};
 
@@ -631,9 +1200,7 @@ class Dashboard {
         const cal = document.getElementById('miniCalendar');
         if (!cal) return;
 
-        if (this.miniCalendar) {
-            this.miniCalendar.destroy();
-        }
+        if (this.miniCalendar) this.miniCalendar.destroy();
 
         const events = this.generateCalendarEvents(30);
 
@@ -739,32 +1306,6 @@ class Dashboard {
         }).join('');
     }
 
-    renderSkills() {
-        const grid = document.getElementById('skillsGrid');
-        if (!grid) return;
-
-        const skills = [
-            { name: 'Mathematics', level: 'Intermediate', progress: 45, icon: 'fa-calculator' },
-            { name: 'Programming', level: 'Intermediate', progress: 60, icon: 'fa-code' },
-            { name: 'Physics', level: 'Beginner', progress: 30, icon: 'fa-atom' }
-        ];
-
-        grid.innerHTML = skills.map(skill => `
-            <div class="skill-card">
-                <div class="skill-header">
-                    <div class="skill-icon"><i class="fas ${skill.icon}"></i></div>
-                    <span class="skill-level">${skill.level}</span>
-                </div>
-                <h4>${skill.name}</h4>
-                <div class="skill-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${skill.progress}%"></div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-
     async completeHabit(habitId, completed) {
         if (!completed) return;
 
@@ -784,14 +1325,12 @@ class Dashboard {
                 
                 this.showNotification('✅ +50 XP!', 'success');
                 
-                // Play sound if enabled
                 try {
                     const audio = new Audio('/sound/notifiaction.mp3');
                     audio.volume = 0.3;
                     audio.play();
                 } catch (e) {}
                 
-                // Check for level up
                 if (data.levelUp) {
                     this.showLevelUp(data.newLevel);
                 }
@@ -815,7 +1354,6 @@ class Dashboard {
     }
 
     showLevelUp(level) {
-        // Show level up animation
         const animation = document.createElement('div');
         animation.style.cssText = `
             position: fixed;
@@ -836,14 +1374,12 @@ class Dashboard {
         animation.innerHTML = `LEVEL UP!<br><span style="font-size: 1.5rem;">Now Level ${level}</span>`;
         document.body.appendChild(animation);
         
-        // Play level up sound
         try {
             const audio = new Audio('/sound/levelup.mp3');
             audio.volume = 0.3;
             audio.play();
         } catch (e) {}
         
-        // Confetti effect
         for (let i = 0; i < 30; i++) {
             setTimeout(() => {
                 const confetti = document.createElement('div');
@@ -1079,9 +1615,7 @@ class Dashboard {
         const el = document.getElementById('fullCalendar');
         if (!el || typeof FullCalendar === 'undefined') return;
 
-        if (this.calendar) {
-            this.calendar.destroy();
-        }
+        if (this.calendar) this.calendar.destroy();
 
         const events = this.generateCalendarEvents(90);
 
@@ -1160,19 +1694,67 @@ class Dashboard {
         const el = document.getElementById('profileContent');
         if (!el) return;
 
+        const savedPicture = localStorage.getItem('profilePicture');
+        const avatarHtml = savedPicture 
+            ? `<img src="${savedPicture}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">`
+            : `<i class="fas fa-user-secret"></i>`;
+
         el.innerHTML = `
             <div style="background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 8px;">
-                <p><strong>Username:</strong> ${this.user.username}</p>
-                <p><strong>Email:</strong> ${this.user.email}</p>
-                <p><strong>Current Streak:</strong> ${this.user.streak?.current || 0} days</p>
-                <p><strong>Longest Streak:</strong> ${this.user.streak?.longest || 0} days</p>
-                <p><strong>Member Since:</strong> ${new Date(this.user.createdAt || Date.now()).toLocaleDateString()}</p>
+                <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+                    <div style="position: relative;">
+                        <div class="avatar" id="profileAvatar" style="width: 100px; height: 100px;">
+                            ${avatarHtml}
+                        </div>
+                        <button onclick="dashboard.triggerProfileUpload()" style="
+                            position: absolute;
+                            bottom: 0;
+                            right: 0;
+                            background: var(--primary-color);
+                            color: var(--dark-bg);
+                            border: none;
+                            width: 35px;
+                            height: 35px;
+                            border-radius: 50%;
+                            cursor: pointer;
+                            border: 2px solid var(--dark-bg);
+                        ">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <h3>${this.user.username}</h3>
+                        <p style="color: var(--text-muted);">${this.user.email}</p>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem;">
+                    <div class="stat-box">
+                        <div class="stat-value">${this.user.streak?.current || 0}</div>
+                        <div class="stat-label">Current Streak</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">${this.user.streak?.longest || 0}</div>
+                        <div class="stat-label">Longest Streak</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">${this.stats.totalCompletions || 0}</div>
+                        <div class="stat-label">Total Completions</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">${new Date(this.user.createdAt || Date.now()).toLocaleDateString()}</div>
+                        <div class="stat-label">Member Since</div>
+                    </div>
+                </div>
             </div>
         `;
     }
 
+    triggerProfileUpload() {
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) fileInput.click();
+    }
+
     setupEventListeners() {
-        // Sidebar navigation
         document.querySelectorAll('.sidebar-menu li').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1181,7 +1763,6 @@ class Dashboard {
             });
         });
 
-        // User menu
         const userMenuBtn = document.getElementById('userMenuBtn');
         if (userMenuBtn) {
             userMenuBtn.addEventListener('click', (e) => {
@@ -1190,13 +1771,11 @@ class Dashboard {
             });
         }
 
-        // Logout
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 
-                // Stop music on logout
                 if (this.lofiAudio) {
                     this.lofiAudio.pause();
                     this.lofiAudio.currentTime = 0;
@@ -1216,7 +1795,6 @@ class Dashboard {
             if (dropdown) dropdown.classList.remove('show');
         });
 
-        // Add habit button
         const addHabitBtn = document.getElementById('addHabitBtn');
         if (addHabitBtn) {
             addHabitBtn.addEventListener('click', () => {
@@ -1224,7 +1802,6 @@ class Dashboard {
             });
         }
 
-        // Close modal buttons
         const closeHabitModal = document.getElementById('closeHabitModal');
         if (closeHabitModal) {
             closeHabitModal.addEventListener('click', () => {
@@ -1244,7 +1821,6 @@ class Dashboard {
             if (e.target === modal) modal.style.display = 'none';
         });
 
-        // Habit form submit
         const habitForm = document.getElementById('habitForm');
         if (habitForm) {
             habitForm.addEventListener('submit', (e) => {
@@ -1253,7 +1829,6 @@ class Dashboard {
             });
         }
 
-        // Notification button
         const notificationBtn = document.getElementById('notificationBtn');
         if (notificationBtn) {
             notificationBtn.addEventListener('click', () => {
@@ -1261,7 +1836,6 @@ class Dashboard {
             });
         }
 
-        // Search
         const globalSearch = document.getElementById('globalSearch');
         if (globalSearch) {
             globalSearch.addEventListener('input', (e) => {
@@ -1363,10 +1937,68 @@ style.textContent = `
         border-radius: 50%;
         cursor: pointer;
     }
+    
+    .category-header {
+        grid-column: 1 / -1;
+        margin-top: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .category-header h3 {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .empty-skills {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem;
+        background: rgba(255,255,255,0.02);
+        border: 2px dashed var(--border-color);
+        border-radius: 12px;
+    }
+    
+    .empty-skills i {
+        font-size: 3rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+    }
+    
+    .empty-skills h3 {
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-skills p {
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-box {
+        background: rgba(255,255,255,0.02);
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+    
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
 `;
 document.head.appendChild(style);
 
-// Initialize when DOM is ready
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     window.dashboard = new Dashboard();
 });

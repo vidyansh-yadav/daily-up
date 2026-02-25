@@ -4,6 +4,7 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');  // Yeh path sahi hai
 
 // ========== GET USER GAMIFICATION DATA ==========
+// ========== GET USER GAMIFICATION DATA ==========
 router.get('/profile', auth, async (req, res) => {
     try {
         const user = await User.findById(req.userId)
@@ -13,15 +14,20 @@ router.get('/profile', auth, async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
         
-        res.json({
-            gamification: user.gamification || {
+        // Ensure gamification object exists
+        if (!user.gamification) {
+            user.gamification = {
                 level: 1,
                 xp: 0,
                 xpToNextLevel: 100,
                 totalXpEarned: 0,
                 badges: [],
                 achievements: []
-            },
+            };
+        }
+        
+        res.json({
+            gamification: user.gamification,
             streak: user.streak || { current: 0, longest: 0 },
             stats: user.stats || { totalCompletions: 0, totalTimeSpent: 0 }
         });
@@ -30,7 +36,6 @@ router.get('/profile', auth, async (req, res) => {
         res.status(500).json({ error: 'Server error: ' + error.message });
     }
 });
-
 // ========== GET LEADERBOARD ==========
 router.get('/leaderboard', auth, async (req, res) => {
     try {

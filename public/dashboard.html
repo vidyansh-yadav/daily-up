@@ -165,6 +165,12 @@
         .logo i {
             font-size: 1.6rem;
         }
+        
+        .logo img {
+            height: 35px;
+            width: auto;
+            filter: brightness(0) invert(1) drop-shadow(0 0 5px var(--primary-color));
+        }
 
         .user-profile {
             text-align: center;
@@ -182,11 +188,43 @@
             justify-content: center;
             margin: 0 auto 1rem;
             border: 2px solid var(--primary-color);
+            overflow: hidden;
+            position: relative;
         }
 
         .avatar i {
             font-size: 2.5rem;
             color: var(--primary-color);
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-upload-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid var(--dark-bg);
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        
+        .avatar-upload-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px var(--primary-color);
         }
 
         .user-profile h3 {
@@ -403,6 +441,7 @@
             width: 200px;
             margin-top: 5px;
             display: none;
+            z-index: 1000;
         }
 
         .user-dropdown.show {
@@ -666,6 +705,11 @@
             transform: rotate(45deg);
         }
 
+        .checkbox-label {
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
         .habit-time {
             display: flex;
             align-items: center;
@@ -765,8 +809,9 @@
 
         .skills-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
+            margin-top: 1rem;
         }
 
         .skill-card {
@@ -774,6 +819,31 @@
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 20px rgba(0, 255, 0, 0.1);
+        }
+
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .skill-card:hover::before {
+            opacity: 1;
         }
 
         .skill-header {
@@ -786,38 +856,254 @@
         .skill-icon {
             width: 50px;
             height: 50px;
-            background: rgba(0, 255, 0, 0.1);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            color: var(--primary-color);
+            transition: all 0.3s;
+        }
+
+        .skill-card:hover .skill-icon {
+            transform: scale(1.1);
         }
 
         .skill-level {
-            background: var(--primary-color);
-            color: var(--dark-bg);
             padding: 0.3rem 0.8rem;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .skill-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .skill-progress {
+            margin: 1rem 0;
         }
 
         .progress-bar {
             width: 100%;
-            height: 6px;
+            height: 8px;
             background: var(--border-color);
-            border-radius: 3px;
+            border-radius: 4px;
             overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
-            background: var(--primary-color);
-            border-radius: 3px;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
         }
 
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .skill-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .skill-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+        }
+
+        .btn-small {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+        }
+
+        .btn-small:hover {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border-color: var(--primary-color);
+        }
+
+        .btn-small i {
+            font-size: 0.9rem;
+        }
+
+        .add-skill-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            min-height: 200px;
+            justify-content: center;
+        }
+
+        .add-skill-card:hover {
+            border-color: var(--primary-color);
+            background: rgba(0, 255, 0, 0.05);
+            transform: scale(1.02);
+        }
+
+        .add-skill-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .add-skill-card h4 {
+            color: var(--text-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .add-skill-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .category-header {
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .category-header h3 {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .loading-skills {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            grid-column: 1 / -1;
+        }
+
+        .loading-skills i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .empty-skills {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+        }
+
+        .empty-skills i {
+            font-size: 3rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .empty-skills h3 {
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-skills p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .xp-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.8rem;
+            background: linear-gradient(135deg, #00ff0020, #00ccff20);
+            border: 1px solid var(--primary-color);
+            border-radius: 20px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .achievement-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .achievement-card.completed {
+            border-color: var(--primary-color);
+        }
+        
+        .achievement-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
         .empty-state {
             text-align: center;
             padding: 3rem;
@@ -987,6 +1273,74 @@
         .notifications-panel.show {
             display: block;
         }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .notifications-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .notification-time {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+        }
+        
+        .clear-all {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .music-btn:hover {
+            background: var(--primary-color) !important;
+            color: var(--dark-bg) !important;
+        }
+        
+        #musicSelect option {
+            background: var(--dark-bg);
+            color: var(--text-color);
+        }
+        
+        #musicVolume::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes levelUp {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -1016,35 +1370,12 @@
         </div>
     </div>
 
-    <!-- Dashboard Content ke andar, welcome-banner ke baad yeh add karo -->
-
-<!-- Gamification Section -->
-<div class="gamification-section" style="margin-bottom: 2rem; background: rgba(0,255,0,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 style="color: var(--primary-color);">
-            <i class="fas fa-star"></i> Your Progress
-        </h3>
-        <div id="userLevel"></div>
-    </div>
-    <div id="xpBar"></div>
-</div>
-
-<!-- Recent Achievements -->
-<div class="achievements-preview" style="margin-bottom: 2rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 style="color: var(--primary-color);">
-            <i class="fas fa-trophy"></i> Recent Achievements
-        </h3>
-    </div>
-    <div id="recentAchievements" class="achievement-grid" style="grid-template-columns: repeat(3, 1fr);">
-        <!-- Achievements will load here -->
-    </div>
-</div>
     <!-- Sidebar Navigation -->
     <nav class="sidebar">
         <div class="sidebar-header">
             <div class="logo">
                 <i class="fas fa-terminal"></i>
+                <img src="/images/log.png" alt="Daily-Up" onerror="this.style.display='none'">
                 <span>DAILY-UP</span>
             </div>
         </div>
@@ -1098,7 +1429,7 @@
                 <a><i class="fas fa-brain"></i> <span>Skills Focus</span></a>
             </li>
             <li data-page="profile">
-                <a><i class="fas fa-user-cog"></i> <span>Profile</span></a>
+                <a href="/profile"><i class="fas fa-user-cog"></i> <span>Profile</span></a>
             </li>
         </ul>
         
@@ -1135,12 +1466,13 @@
                     <button class="user-menu-btn" id="userMenuBtn">
                         <span id="greetingText">Menu</span>
                         <i class="fas fa-chevron-down"></i>
-                    </button><div class="user-dropdown" id="userDropdown">
-    <a href="/profile"><i class="fas fa-user"></i> Profile</a>
-    <a id="settingsLink"><i class="fas fa-cog"></i> Settings</a>
-    <hr>
-    <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-</div>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+                        <a id="settingsLink"><i class="fas fa-cog"></i> Settings</a>
+                        <hr>
+                        <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
                 </div>
                 
                 <button class="add-habit-btn" id="addHabitBtn">
@@ -1166,6 +1498,29 @@
                             <p>Day Streak</p>
                         </div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- Gamification Section -->
+            <div class="gamification-section" style="margin-bottom: 2rem; background: rgba(0,255,0,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="color: var(--primary-color);">
+                        <i class="fas fa-star"></i> Your Progress
+                    </h3>
+                    <div id="userLevel"></div>
+                </div>
+                <div id="xpBar"></div>
+            </div>
+            
+            <!-- Recent Achievements -->
+            <div class="achievements-preview" style="margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="color: var(--primary-color);">
+                        <i class="fas fa-trophy"></i> Recent Achievements
+                    </h3>
+                </div>
+                <div id="recentAchievements" class="achievement-grid">
+                    <!-- Achievements will load here -->
                 </div>
             </div>
             
@@ -1245,7 +1600,12 @@
                         <span>Skills Focus</span>
                     </h2>
                 </div>
-                <div class="skills-grid" id="skillsGrid"></div>
+                <div class="skills-grid" id="skillsGrid">
+                    <div class="loading-skills">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading skills...</p>
+                    </div>
+                </div>
             </section>
         </div>
         
@@ -1410,6 +1770,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Hidden file input for profile picture -->
+    <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
 
     <!-- Scripts -->
     <script src="js/auth.js"></script>
