@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer | Daily-Up</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .timer-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            text-align: center;
+            padding: 2rem;
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+        
+        .timer-display {
+            font-size: 6rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            font-family: 'Courier New', monospace;
+            margin: 2rem 0;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+        
+        .timer-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        .timer-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color);
+            background: transparent;
+            color: var(--primary-color);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .timer-btn:hover:not(:disabled) {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            transform: scale(1.1);
+        }
+        
+        .timer-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .timer-modes {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        .mode-btn {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn.active {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border-color: var(--primary-color);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .focus-level {
+            margin: 2rem 0;
+        }
+        
+        .focus-slider {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .focus-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .session-history {
+            margin-top: 2rem;
+            text-align: left;
+        }
+        
+        .session-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-terminal"></i>
+                <span>DAILY-UP</span>
+            </div>
+        </div>
+        
+        <div class="user-profile">
+            <div class="avatar">
+                <i class="fas fa-user-secret"></i>
+            </div>
+            <h3 id="username">Loading...</h3>
+            <p id="userEmail" class="user-email">user@example.com</p>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li data-page="dashboard">
+                <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+            </li>
+            <li class="active" data-page="pomodoro">
+                <a><i class="fas fa-clock"></i> <span>Pomodoro</span></a>
+            </li>
+            <li data-page="journal">
+                <a href="/journal"><i class="fas fa-book"></i> <span>Journal</span></a>
+            </li>
+            <li data-page="challenges">
+                <a href="/challenges"><i class="fas fa-trophy"></i> <span>Challenges</span></a>
+            </li>
+        </ul>
+    </nav>
+    
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search...">
+            </div>
+            <div class="top-bar-right">
+                <button class="notification-btn" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="user-menu">
+                    <button class="user-menu-btn" id="userMenuBtn">
+                        <span>Pomodoro</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <div class="page-content">
+            <h2><i class="fas fa-clock"></i> Pomodoro Timer</h2>
+            
+            <div class="timer-container">
+                <div class="timer-modes">
+                    <button class="mode-btn active" data-mode="work">Work</button>
+                    <button class="mode-btn" data-mode="shortBreak">Short Break</button>
+                    <button class="mode-btn" data-mode="longBreak">Long Break</button>
+                </div>
+                
+                <div class="timer-display" id="timerDisplay">25:00</div>
+                
+                <div class="timer-controls">
+                    <button class="timer-btn" id="timerStart" title="Start">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="timer-btn" id="timerPause" title="Pause" disabled>
+                        <i class="fas fa-pause"></i>
+                    </button>
+                    <button class="timer-btn" id="timerReset" title="Reset">
+                        <i class="fas fa-redo-alt"></i>
+                    </button>
+                </div>
+                
+                <div class="focus-level">
+                    <label>Focus Level (1-10):</label>
+                    <input type="range" id="focusLevel" class="focus-slider" min="1" max="10" value="7">
+                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+                        <span>😴 Low</span>
+                        <span id="focusValue">7</span>
+                        <span>⚡ High</span>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="todaySessions">0</div>
+                        <div class="stat-label">Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalSessions">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalHours">0</div>
+                        <div class="stat-label">Hours</div>
+                    </div>
+                </div>
+                
+                <div class="session-history" id="sessionHistory">
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Recent Sessions</h3>
+                    <!-- Sessions will load here -->
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/pomodoro.js"></script>
+</body>
+</html>

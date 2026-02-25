@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Challenges | Daily-Up</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .challenges-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-create {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .challenges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .challenge-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .challenge-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+        }
+        
+        .challenge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .challenge-category {
+            background: rgba(0, 204, 255, 0.1);
+            color: var(--secondary-color);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .challenge-status {
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background: rgba(0, 255, 0, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .status-upcoming {
+            background: rgba(255, 170, 0, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .status-completed {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+        }
+        
+        .challenge-progress {
+            margin: 1rem 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #00ccff);
+            transition: width 0.3s;
+        }
+        
+        .participants-list {
+            display: flex;
+            margin: 1rem 0;
+        }
+        
+        .participant-avatar {
+            width: 35px;
+            height: 35px;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 50%;
+            border: 2px solid var(--dark-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            margin-right: -10px;
+        }
+        
+        .challenge-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .challenge-reward {
+            color: gold;
+            font-weight: bold;
+        }
+        
+        .btn-join {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn-join:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+        }
+        
+        .leaderboard-section {
+            margin-top: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .leaderboard-rank {
+            width: 30px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .leaderboard-name {
+            flex: 1;
+        }
+        
+        .leaderboard-score {
+            font-weight: bold;
+            color: gold;
+        }
+        
+        .filter-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-terminal"></i>
+                <span>DAILY-UP</span>
+            </div>
+        </div>
+        
+        <div class="user-profile">
+            <div class="avatar">
+                <i class="fas fa-user-secret"></i>
+            </div>
+            <h3 id="username">Loading...</h3>
+            <p id="userEmail" class="user-email">user@example.com</p>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li data-page="dashboard">
+                <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+            </li>
+            <li data-page="pomodoro">
+                <a href="/pomodoro"><i class="fas fa-clock"></i> <span>Pomodoro</span></a>
+            </li>
+            <li data-page="journal">
+                <a href="/journal"><i class="fas fa-book"></i> <span>Journal</span></a>
+            </li>
+            <li class="active" data-page="challenges">
+                <a><i class="fas fa-trophy"></i> <span>Challenges</span></a>
+            </li>
+        </ul>
+    </nav>
+    
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search challenges...">
+            </div>
+            <div class="top-bar-right">
+                <button class="notification-btn" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="user-menu">
+                    <button class="user-menu-btn" id="userMenuBtn">
+                        <span>Challenges</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <div class="page-content">
+            <div class="challenges-header">
+                <h2><i class="fas fa-trophy"></i> Challenges & Competitions</h2>
+                <button class="btn-create" id="createChallengeBtn">
+                    <i class="fas fa-plus"></i> Create Challenge
+                </button>
+            </div>
+            
+            <div class="filter-section">
+                <button class="filter-btn active" data-filter="active">Active</button>
+                <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+                <button class="filter-btn" data-filter="my">My Challenges</button>
+                <button class="filter-btn" data-filter="created">Created by Me</button>
+            </div>
+            
+            <div class="challenges-grid" id="challengesGrid">
+                <!-- Challenges will load here -->
+            </div>
+            
+            <!-- Create Challenge Modal -->
+            <div class="modal" id="createChallengeModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Create New Challenge</h2>
+                        <button class="close-modal" id="closeChallengeModal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="challengeForm">
+                            <div class="form-group">
+                                <label>Challenge Name</label>
+                                <input type="text" id="challengeName" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea id="challengeDescription" rows="3" required></textarea>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Category</label>
+                                    <select id="challengeCategory">
+                                        <option value="fitness">Fitness</option>
+                                        <option value="coding">Coding</option>
+                                        <option value="reading">Reading</option>
+                                        <option value="meditation">Meditation</option>
+                                        <option value="custom">Custom</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Type</label>
+                                    <select id="challengeType">
+                                        <option value="public">Public</option>
+                                        <option value="private">Private</option>
+                                        <option value="friends">Friends Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Goal Type</label>
+                                    <select id="goalType">
+                                        <option value="streak">Streak</option>
+                                        <option value="completions">Total Completions</option>
+                                        <option value="minutes">Minutes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Target</label>
+                                    <input type="number" id="goalTarget" min="1" value="7">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input type="date" id="startDate">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>End Date</label>
+                                    <input type="date" id="endDate">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Reward XP</label>
+                                <input type="number" id="rewardXP" value="500" min="100" max="5000">
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn-submit">Create Challenge</button>
+                                <button type="button" class="btn-cancel" id="cancelChallengeBtn">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/challenges.js"></script>
+</body>
+</html>

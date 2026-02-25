@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal | Daily-Up</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .journal-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+        
+        .calendar-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .entry-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .mood-selector {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .mood-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mood-btn:hover {
+            transform: scale(1.1);
+            border-color: var(--primary-color);
+        }
+        
+        .mood-btn.selected {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+        }
+        
+        .mood-btn[data-value="1"]:hover { background: #ff3333; color: white; }
+        .mood-btn[data-value="2"]:hover { background: #ff6633; color: white; }
+        .mood-btn[data-value="3"]:hover { background: #ff9933; color: white; }
+        .mood-btn[data-value="4"]:hover { background: #ffcc00; color: black; }
+        .mood-btn[data-value="5"]:hover { background: #99cc00; color: black; }
+        .mood-btn[data-value="6"]:hover { background: #66cc33; color: black; }
+        .mood-btn[data-value="7"]:hover { background: #33cc66; color: black; }
+        .mood-btn[data-value="8"]:hover { background: #00cc99; color: black; }
+        .mood-btn[data-value="9"]:hover { background: #00cccc; color: black; }
+        .mood-btn[data-value="10"]:hover { background: #00ff00; color: black; }
+        
+        .slider-group {
+            margin: 1rem 0;
+        }
+        
+        .slider-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+        
+        .energy-slider, .stress-slider {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .energy-slider::-webkit-slider-thumb,
+        .stress-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .gratitude-section {
+            margin: 2rem 0;
+        }
+        
+        .gratitude-item {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .gratitude-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.8rem;
+            border-radius: 4px;
+        }
+        
+        .btn-add {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 1rem 0;
+        }
+        
+        .btn-save {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .reflection-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.8rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            resize: vertical;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .calendar-day:hover {
+            border-color: var(--primary-color) !important;
+            transform: scale(1.05);
+        }
+        
+        .calendar-day.has-entry {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-terminal"></i>
+                <span>DAILY-UP</span>
+            </div>
+        </div>
+        
+        <div class="user-profile">
+            <div class="avatar">
+                <i class="fas fa-user-secret"></i>
+            </div>
+            <h3 id="username">Loading...</h3>
+            <p id="userEmail" class="user-email">user@example.com</p>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li data-page="dashboard">
+                <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+            </li>
+            <li data-page="pomodoro">
+                <a href="/pomodoro"><i class="fas fa-clock"></i> <span>Pomodoro</span></a>
+            </li>
+            <li class="active" data-page="journal">
+                <a><i class="fas fa-book"></i> <span>Journal</span></a>
+            </li>
+            <li data-page="challenges">
+                <a href="/challenges"><i class="fas fa-trophy"></i> <span>Challenges</span></a>
+            </li>
+        </ul>
+    </nav>
+    
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search entries...">
+            </div>
+            <div class="top-bar-right">
+                <button class="notification-btn" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="user-menu">
+                    <button class="user-menu-btn" id="userMenuBtn">
+                        <span>Journal</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <div class="page-content">
+            <h2><i class="fas fa-book"></i> Daily Journal</h2>
+            
+            <div class="journal-container">
+                <!-- Calendar Section -->
+                <div class="calendar-section">
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Journal Calendar</h3>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <button class="btn-action" id="prevMonth">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span id="currentMonthYear">March 2024</span>
+                        <button class="btn-action" id="nextMonth">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div id="journalCalendar"></div>
+                </div>
+                
+                <!-- Entry Section -->
+                <div class="entry-section">
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;" id="entryDate">Today's Entry</h3>
+                    
+                    <div class="mood-selector" id="moodSelector">
+                        <button class="mood-btn" data-value="1">😢</button>
+                        <button class="mood-btn" data-value="2">😞</button>
+                        <button class="mood-btn" data-value="3">😐</button>
+                        <button class="mood-btn" data-value="4">🙂</button>
+                        <button class="mood-btn" data-value="5">😊</button>
+                        <button class="mood-btn" data-value="6">😄</button>
+                        <button class="mood-btn" data-value="7">😁</button>
+                        <button class="mood-btn" data-value="8">🌟</button>
+                        <button class="mood-btn" data-value="9">💫</button>
+                        <button class="mood-btn" data-value="10">⚡</button>
+                    </div>
+                    <input type="hidden" id="selectedMood" value="5">
+                    
+                    <div class="slider-group">
+                        <label>Energy Level: <span id="energyValue">5</span></label>
+                        <input type="range" id="energyLevel" class="energy-slider" min="1" max="10" value="5">
+                    </div>
+                    
+                    <div class="slider-group">
+                        <label>Stress Level: <span id="stressValue">5</span></label>
+                        <input type="range" id="stressLevel" class="stress-slider" min="1" max="10" value="5">
+                    </div>
+                    
+                    <div class="gratitude-section">
+                        <h4 style="color: var(--primary-color);">Gratitude List</h4>
+                        <div id="gratitudeList"></div>
+                        <button class="btn-add" id="addGratitude">
+                            <i class="fas fa-plus"></i> Add Gratitude
+                        </button>
+                    </div>
+                    
+                    <div style="margin: 1rem 0;">
+                        <h4 style="color: var(--primary-color);">Journal Notes</h4>
+                        <textarea id="journalNotes" class="reflection-input" rows="4" placeholder="Write your thoughts..."></textarea>
+                    </div>
+                    
+                    <div style="margin: 1rem 0;">
+                        <h4 style="color: var(--primary-color);">Reflections</h4>
+                        <input type="text" id="reflectionWins" class="reflection-input" placeholder="What went well today?">
+                        <input type="text" id="reflectionChallenges" class="reflection-input" placeholder="What challenges did you face?">
+                        <input type="text" id="reflectionLearnings" class="reflection-input" placeholder="What did you learn?">
+                        <input type="text" id="reflectionTomorrow" class="reflection-input" placeholder="What will you do tomorrow?">
+                    </div>
+                    
+                    <button class="btn-save" id="saveJournal">
+                        <i class="fas fa-save"></i> Save Journal Entry
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/journal.js"></script>
+</body>
+</html>

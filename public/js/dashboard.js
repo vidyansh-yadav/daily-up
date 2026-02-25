@@ -1,6 +1,6 @@
 // ==========================================
-// COMPLETE DASHBOARD - WORKING VERSION
-// No dummy data, real API integration
+// COMPLETE DASHBOARD - FULLY WORKING
+// With Gamification, XP, Level Up & Music
 // Developed by: UNSEEN-TERMINATION
 // ==========================================
 
@@ -17,10 +17,13 @@ class Dashboard {
             categoryDistribution: {},
             totalStudyTime: 0
         };
+        this.gamification = null;
         this.apiUrl = window.location.origin + '/api';
         this.weeklyChart = null;
         this.calendar = null;
         this.miniCalendar = null;
+        this.audioEnabled = true;
+        this.currentMusic = null;
         
         // Check authentication first
         this.checkAuth();
@@ -50,12 +53,14 @@ class Dashboard {
             // Verify token with server
             await this.verifyUser();
             
-            // Load data
+            // Load all data
             await this.loadHabits();
             await this.loadStats();
+            await this.loadGamification();
             
             // Update UI
             this.updateUserProfile();
+            this.renderGamification();
             this.renderHabits();
             this.renderStats();
             this.setupCharts();
@@ -64,6 +69,7 @@ class Dashboard {
             this.renderSkills();
             this.setupEventListeners();
             this.addWatermark();
+            this.setupMusicSystem();
             
             this.hideLoading();
             
@@ -96,6 +102,159 @@ class Dashboard {
         `;
         watermark.innerHTML = `21K School • UNSEEN-TERMINATION • ${new Date().getFullYear()}`;
         document.body.appendChild(watermark);
+    }
+
+    // ========== MUSIC SYSTEM ==========
+    setupMusicSystem() {
+        // Create music controls
+        const musicControl = document.createElement('div');
+        musicControl.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 280px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--primary-color);
+            border-radius: 30px;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+        `;
+        
+        musicControl.innerHTML = `
+            <i class="fas fa-music" style="color: var(--primary-color);"></i>
+            <select id="musicSelect" style="
+                background: transparent;
+                border: 1px solid var(--border-color);
+                color: var(--text-color);
+                padding: 0.3rem;
+                border-radius: 4px;
+                font-family: 'Courier New', monospace;
+                cursor: pointer;
+            ">
+                <option value="">🔇 No Music</option>
+                <option value="lofi">🎵 Lo-Fi Study</option>
+                <option value="coding">💻 Coding Beats</option>
+            </select>
+            <button id="musicPlayPause" class="music-btn" style="
+                background: transparent;
+                border: 1px solid var(--primary-color);
+                color: var(--primary-color);
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            ">
+                <i class="fas fa-play"></i>
+            </button>
+            <input type="range" id="musicVolume" min="0" max="100" value="30" style="
+                width: 80px;
+                height: 4px;
+                background: var(--border-color);
+                border-radius: 2px;
+                -webkit-appearance: none;
+            ">
+        `;
+        
+        document.body.appendChild(musicControl);
+        
+        // Create audio elements
+        this.lofiAudio = new Audio();
+        this.codingAudio = new Audio();
+        
+        // Ye links aap apni website ke hisaab se change kar sakte ho
+        // Abhi placeholder links hain - aap apni music files ke links yahan daal dena
+        this.lofiAudio.src = '/music/tuyo.mp3'; // Lo-fi beat
+        this.codingAudio.src = '/music/coding.mp3'; // Electronic beat
+        
+        this.lofiAudio.loop = true;
+        this.codingAudio.loop = true;
+        this.lofiAudio.volume = 0.3;
+        this.codingAudio.volume = 0.3;
+        
+        // Store current audio
+        this.currentAudio = null;
+        
+        // Setup event listeners
+        const musicSelect = document.getElementById('musicSelect');
+        const musicPlayPause = document.getElementById('musicPlayPause');
+        const musicVolume = document.getElementById('musicVolume');
+        
+        if (musicSelect) {
+            musicSelect.addEventListener('change', (e) => {
+                this.switchMusic(e.target.value);
+            });
+        }
+        
+        if (musicPlayPause) {
+            musicPlayPause.addEventListener('click', () => {
+                this.toggleMusic();
+            });
+        }
+        
+        if (musicVolume) {
+            musicVolume.addEventListener('input', (e) => {
+                this.setVolume(e.target.value / 100);
+            });
+        }
+    }
+    
+    switchMusic(type) {
+        // Stop current music
+        if (this.lofiAudio) {
+            this.lofiAudio.pause();
+            this.lofiAudio.currentTime = 0;
+        }
+        if (this.codingAudio) {
+            this.codingAudio.pause();
+            this.codingAudio.currentTime = 0;
+        }
+        
+        // Play selected music
+        if (type === 'lofi') {
+            this.currentAudio = this.lofiAudio;
+            this.currentAudio.play().catch(e => console.log('Audio play failed:', e));
+            document.getElementById('musicPlayPause').innerHTML = '<i class="fas fa-pause"></i>';
+        } else if (type === 'coding') {
+            this.currentAudio = this.codingAudio;
+            this.currentAudio.play().catch(e => console.log('Audio play failed:', e));
+            document.getElementById('musicPlayPause').innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            this.currentAudio = null;
+            document.getElementById('musicPlayPause').innerHTML = '<i class="fas fa-play"></i>';
+        }
+    }
+    
+    toggleMusic() {
+        if (!this.currentAudio) {
+            // If no music selected, select default
+            const select = document.getElementById('musicSelect');
+            if (select) {
+                select.value = 'lofi';
+                this.switchMusic('lofi');
+            }
+            return;
+        }
+        
+        const playPauseBtn = document.getElementById('musicPlayPause');
+        if (this.currentAudio.paused) {
+            this.currentAudio.play().catch(e => console.log('Audio play failed:', e));
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            this.currentAudio.pause();
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+    }
+    
+    setVolume(volume) {
+        if (this.lofiAudio) this.lofiAudio.volume = volume;
+        if (this.codingAudio) this.codingAudio.volume = volume;
     }
 
     async verifyUser() {
@@ -231,6 +390,72 @@ class Dashboard {
             this.stats.averageSuccessRate = Math.round(
                 this.habits.reduce((sum, h) => sum + (h.statistics?.successRate || 0), 0) / this.habits.length
             );
+        }
+    }
+
+    async loadGamification() {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${this.apiUrl}/gamification/profile`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                this.gamification = data;
+                this.renderGamification();
+            }
+        } catch (error) {
+            console.error('Failed to load gamification:', error);
+        }
+    }
+
+    renderGamification() {
+        // Update level display
+        const levelEl = document.getElementById('userLevel');
+        if (levelEl && this.gamification) {
+            levelEl.innerHTML = `
+                <div class="level-badge">
+                    <i class="fas fa-star"></i> Level ${this.gamification.gamification?.level || 1}
+                </div>
+            `;
+        }
+        
+        // Update XP bar
+        const xpBar = document.getElementById('xpBar');
+        if (xpBar && this.gamification) {
+            const currentXP = this.gamification.gamification?.xp || 0;
+            const nextLevelXP = this.gamification.gamification?.xpToNextLevel || 100;
+            const percentage = (currentXP / nextLevelXP) * 100;
+            
+            xpBar.innerHTML = `
+                <div class="xp-bar">
+                    <div class="xp-fill" style="width: ${percentage}%"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 0.3rem;">
+                    <span>${currentXP} XP</span>
+                    <span>Next: ${nextLevelXP} XP</span>
+                </div>
+            `;
+        }
+        
+        // Update recent achievements
+        const recentEl = document.getElementById('recentAchievements');
+        if (recentEl && this.gamification?.achievements) {
+            const recent = this.gamification.achievements
+                .filter(a => a.completed)
+                .slice(0, 3);
+            
+            if (recent.length > 0) {
+                recentEl.innerHTML = recent.map(a => `
+                    <div class="achievement-card completed" style="padding: 1rem;">
+                        <div class="achievement-icon"><i class="${a.achievement?.icon || 'fas fa-medal'}"></i></div>
+                        <h4 style="font-size: 0.9rem;">${a.achievement?.name || 'Achievement'}</h4>
+                    </div>
+                `).join('');
+            } else {
+                recentEl.innerHTML = '<p style="color: var(--text-muted);">No achievements yet</p>';
+            }
         }
     }
 
@@ -555,11 +780,29 @@ class Dashboard {
             });
 
             if (res.ok) {
-                this.showNotification('✅ Habit completed!', 'success');
+                const data = await res.json();
+                
+                this.showNotification('✅ +50 XP!', 'success');
+                
+                // Play sound if enabled
+                try {
+                    const audio = new Audio('/sound/notifiaction.mp3');
+                    audio.volume = 0.3;
+                    audio.play();
+                } catch (e) {}
+                
+                // Check for level up
+                if (data.levelUp) {
+                    this.showLevelUp(data.newLevel);
+                }
+                
                 await this.loadHabits();
                 await this.loadStats();
+                await this.loadGamification();
+                
                 this.renderHabits();
                 this.renderStats();
+                this.renderGamification();
                 this.updateCharts();
                 this.setupTimetable();
             } else {
@@ -569,6 +812,58 @@ class Dashboard {
             console.error('Complete habit error:', error);
             this.showNotification('Network error', 'error');
         }
+    }
+
+    showLevelUp(level) {
+        // Show level up animation
+        const animation = document.createElement('div');
+        animation.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #00ff00, #00ccff);
+            color: black;
+            padding: 2rem 4rem;
+            border-radius: 12px;
+            font-size: 3rem;
+            font-weight: bold;
+            z-index: 10000;
+            animation: levelUp 2s ease-out forwards;
+            box-shadow: 0 0 50px rgba(0,255,0,0.5);
+            text-align: center;
+        `;
+        animation.innerHTML = `LEVEL UP!<br><span style="font-size: 1.5rem;">Now Level ${level}</span>`;
+        document.body.appendChild(animation);
+        
+        // Play level up sound
+        try {
+            const audio = new Audio('/sound/levelup.mp3');
+            audio.volume = 0.3;
+            audio.play();
+        } catch (e) {}
+        
+        // Confetti effect
+        for (let i = 0; i < 30; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.style.cssText = `
+                    position: fixed;
+                    left: ${Math.random() * 100}vw;
+                    top: -20px;
+                    width: 10px;
+                    height: 10px;
+                    background: ${['#00ff00', '#00ccff', '#ffaa00'][Math.floor(Math.random() * 3)]};
+                    border-radius: 50%;
+                    animation: confetti ${Math.random() * 3 + 2}s linear forwards;
+                    z-index: 9999;
+                `;
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 5000);
+            }, i * 50);
+        }
+        
+        setTimeout(() => animation.remove(), 3000);
     }
 
     async addNewHabit() {
@@ -618,8 +913,11 @@ class Dashboard {
                 
                 await this.loadHabits();
                 await this.loadStats();
+                await this.loadGamification();
+                
                 this.renderHabits();
                 this.renderStats();
+                this.renderGamification();
                 this.updateCharts();
                 this.setupTimetable();
             } else {
@@ -644,10 +942,14 @@ class Dashboard {
 
             if (res.ok) {
                 this.showNotification('✅ Habit deleted', 'success');
+                
                 await this.loadHabits();
                 await this.loadStats();
+                await this.loadGamification();
+                
                 this.renderHabits();
                 this.renderStats();
+                this.renderGamification();
                 this.updateCharts();
                 this.setupTimetable();
             }
@@ -681,6 +983,7 @@ class Dashboard {
             }
             
             document.getElementById('addHabitModal').style.display = 'flex';
+            this.showNotification('Edit mode - modify and save', 'info');
         }
     }
 
@@ -892,6 +1195,17 @@ class Dashboard {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                
+                // Stop music on logout
+                if (this.lofiAudio) {
+                    this.lofiAudio.pause();
+                    this.lofiAudio.currentTime = 0;
+                }
+                if (this.codingAudio) {
+                    this.codingAudio.pause();
+                    this.codingAudio.currentTime = 0;
+                }
+                
                 localStorage.clear();
                 window.location.href = '/intro';
             });
@@ -971,7 +1285,6 @@ class Dashboard {
             if (filtered.length === 0) {
                 grid.innerHTML = '<div class="empty-state"><p>No habits match your search</p></div>';
             } else {
-                const today = new Date();
                 grid.innerHTML = filtered.map(habit => `
                     <div class="habit-card">
                         <div class="habit-card-header">
@@ -985,12 +1298,70 @@ class Dashboard {
     }
 }
 
-// Add animation style
+// Add animation styles
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideIn {
         from { transform: translateX(100%); opacity: 0; }
         to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes levelUp {
+        0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+        50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    
+    @keyframes confetti {
+        0% { transform: translateY(0) rotate(0); opacity: 1; }
+        100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    
+    .xp-bar {
+        width: 100%;
+        height: 8px;
+        background: var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 0.5rem 0;
+    }
+    
+    .xp-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #00ff00, #00ccff);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+    
+    .level-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.8rem;
+        background: linear-gradient(135deg, #00ff0020, #00ccff20);
+        border: 1px solid var(--primary-color);
+        border-radius: 20px;
+        color: var(--primary-color);
+        font-weight: bold;
+    }
+    
+    .music-btn:hover {
+        background: var(--primary-color) !important;
+        color: var(--dark-bg) !important;
+    }
+    
+    #musicSelect option {
+        background: var(--dark-bg);
+        color: var(--text-color);
+    }
+    
+    #musicVolume::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 15px;
+        height: 15px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        cursor: pointer;
     }
 `;
 document.head.appendChild(style);

@@ -1015,7 +1015,31 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- Dashboard Content ke andar, welcome-banner ke baad yeh add karo -->
+
+<!-- Gamification Section -->
+<div class="gamification-section" style="margin-bottom: 2rem; background: rgba(0,255,0,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="color: var(--primary-color);">
+            <i class="fas fa-star"></i> Your Progress
+        </h3>
+        <div id="userLevel"></div>
+    </div>
+    <div id="xpBar"></div>
+</div>
+
+<!-- Recent Achievements -->
+<div class="achievements-preview" style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="color: var(--primary-color);">
+            <i class="fas fa-trophy"></i> Recent Achievements
+        </h3>
+    </div>
+    <div id="recentAchievements" class="achievement-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <!-- Achievements will load here -->
+    </div>
+</div>
     <!-- Sidebar Navigation -->
     <nav class="sidebar">
         <div class="sidebar-header">
@@ -1111,13 +1135,12 @@
                     <button class="user-menu-btn" id="userMenuBtn">
                         <span id="greetingText">Menu</span>
                         <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a id="profileLink"><i class="fas fa-user"></i> Profile</a>
-                        <a id="settingsLink"><i class="fas fa-cog"></i> Settings</a>
-                        <hr>
-                        <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                    </div>
+                    </button><div class="user-dropdown" id="userDropdown">
+    <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+    <a id="settingsLink"><i class="fas fa-cog"></i> Settings</a>
+    <hr>
+    <a id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
                 </div>
                 
                 <button class="add-habit-btn" id="addHabitBtn">
