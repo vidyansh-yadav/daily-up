@@ -1564,30 +1564,43 @@ class Dashboard {
             }
         }
     }
-
-    loadPage(page) {
-        switch(page) {
-            case 'habits':
-                this.loadHabitsPage();
-                break;
-            case 'calendar':
-                this.loadCalendarPage();
-                break;
-            case 'timetable':
-                this.loadTimetablePage();
-                break;
-            case 'analytics':
-                this.loadAnalyticsPage();
-                break;
-            case 'profile':
-                this.loadProfilePage();
-                break;
-            case 'skills':
-                this.renderSkills();
-                break;
-        }
+loadPage(page) {
+    console.log('Loading page:', page);
+    switch(page) {
+        case 'habits':
+            this.loadHabitsPage();
+            break;
+        case 'calendar':
+            this.loadCalendarPage();
+            break;
+        case 'timetable':
+            this.loadTimetablePage();
+            break;
+        case 'analytics':
+            this.loadAnalyticsPage();
+            break;
+        case 'profile':
+            this.loadProfilePage();
+            break;
+        case 'skills':
+            this.renderSkills();
+            break;
+        case 'pomodoro':
+            this.loadPomodoroPage();
+            break;
+        case 'journal':
+            this.loadJournalPage();
+            break;
+        case 'challenges':
+            this.loadChallengesPage();
+            break;
+        case 'chat':
+            this.loadChatPage();
+            break;
+        default:
+            console.log('Unknown page:', page);
     }
-
+}
     loadHabitsPage() {
         const el = document.getElementById('allHabitsGrid');
         if (!el) return;
@@ -1748,7 +1761,41 @@ class Dashboard {
             </div>
         `;
     }
+// ========== POMODORO PAGE ==========
+loadPomodoroPage() {
+    const el = document.getElementById('pomodoroContent');
+    if (!el) return;
+    
+    // Redirect to full pomodoro page
+    window.location.href = '/pomodoro';
+}
 
+// ========== JOURNAL PAGE ==========
+loadJournalPage() {
+    const el = document.getElementById('journalContent');
+    if (!el) return;
+    
+    // Redirect to full journal page
+    window.location.href = '/journal';
+}
+
+// ========== CHALLENGES PAGE ==========
+loadChallengesPage() {
+    const el = document.getElementById('challengesContent');
+    if (!el) return;
+    
+    // Redirect to full challenges page
+    window.location.href = '/challenges';
+}
+
+// ========== CHAT PAGE ==========
+loadChatPage() {
+    const el = document.getElementById('chatContent');
+    if (!el) return;
+    
+    // Redirect to full chat page
+    window.location.href = '/chat';
+}
     triggerProfileUpload() {
         const fileInput = document.querySelector('input[type="file"]');
         if (fileInput) fileInput.click();

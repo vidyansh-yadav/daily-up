@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily-Up - Developer Habit Tracker</title>
+    <title>Daily-Up - Apka Personal Habit Assistant</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ========== SIMPLE HACKER THEME ========== */
         * {
             margin: 0;
             padding: 0;
@@ -16,9 +17,8 @@
         body {
             font-family: 'Courier New', monospace;
             background: #0a0a0a;
-            color: #fff;
+            color: #ffffff;
             line-height: 1.6;
-            overflow-x: hidden;
         }
 
         .matrix-bg {
@@ -34,32 +34,34 @@
             z-index: -1;
         }
 
+        /* ========== MAIN CONTAINER ========== */
         .intro-wrapper {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            padding: 1rem;
         }
 
         .intro-card {
-            max-width: 600px;
+            max-width: 1000px;
             width: 100%;
-            background: rgba(26, 26, 26, 0.95);
-            border: 1px solid #00ff00;
-            border-radius: 12px;
+            background: rgba(10, 10, 10, 0.95);
+            border: 2px solid #00ff00;
+            border-radius: 15px;
             padding: 2rem;
             backdrop-filter: blur(10px);
-            box-shadow: 0 0 30px rgba(0,255,0,0.2);
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.3);
         }
 
+        /* ========== TERMINAL HEADER ========== */
         .terminal-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding-bottom: 1rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #333;
+            gap: 15px;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #333;
         }
 
         .terminal-dots {
@@ -68,8 +70,8 @@
         }
 
         .dot {
-            width: 12px;
-            height: 12px;
+            width: 15px;
+            height: 15px;
             border-radius: 50%;
         }
 
@@ -79,138 +81,174 @@
 
         .terminal-title {
             color: #888;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
         }
 
-        .logo {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .logo i {
-            font-size: 4rem;
-            color: #00ff00;
-            margin-bottom: 1rem;
-        }
-
-        .logo h1 {
-            font-size: 2.5rem;
-            color: #00ff00;
-            margin-bottom: 0.5rem;
-        }
-
-        .logo p {
-            color: #888;
-        }
-
-        .command-line {
-            background: #000;
-            border-radius: 6px;
-            padding: 1rem;
-            margin: 2rem 0;
-            font-family: 'Courier New', monospace;
-        }
-
-        .command-prompt {
-            color: #00ff00;
-            margin-right: 10px;
-        }
-
-        .command-text {
-            color: #fff;
-        }
-
-        .output {
-            color: #888;
-            margin-left: 20px;
-            margin-top: 5px;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-
-        .feature-item {
-            padding: 0.8rem;
-            background: rgba(0,255,0,0.05);
-            border: 1px solid #333;
-            border-radius: 6px;
-            text-align: center;
-        }
-
-        .feature-item i {
+        .terminal-title i {
             color: #00ff00;
             margin-right: 5px;
         }
 
-        .welcome-message {
-            background: rgba(0,255,0,0.1);
-            border: 1px solid #00ff00;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 2rem 0;
+        /* ========== LOGO SECTION ========== */
+        .logo-section {
             text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(0, 255, 0, 0.05);
+            border-radius: 10px;
+            border: 1px solid #333;
         }
 
-        .welcome-message h2 {
+        .logo-section i {
+            font-size: 4rem;
             color: #00ff00;
             margin-bottom: 0.5rem;
         }
 
-        .btn-group {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
+        .logo-section h1 {
+            font-size: 2.5rem;
+            color: #00ff00;
+            margin-bottom: 0.3rem;
         }
 
-        .btn {
-            flex: 1;
-            padding: 1rem;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
+        .logo-section p {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        .tagline {
+            color: #00ff00;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            opacity: 0.8;
+        }
+
+        /* ========== WELCOME MESSAGE ========== */
+        .welcome-box {
+            background: #000;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
             text-align: center;
+        }
+
+        .welcome-box h2 {
+            color: #00ff00;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-box p {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        /* ========== FEATURES GRID ========== */
+        .features-title {
+            color: #00ff00;
+            font-size: 1.5rem;
+            margin: 2rem 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .features-title i {
+            font-size: 1.8rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
             transition: all 0.3s;
         }
 
-        .btn-primary {
-            background: #00ff00;
-            color: #000;
+        .feature-card:hover {
+            border-color: #00ff00;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 255, 0, 0.1);
         }
 
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid #00ff00;
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .feature-icon i {
+            font-size: 2rem;
             color: #00ff00;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,255,0,0.2);
+        .feature-card h3 {
+            color: #00ff00;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
         }
 
-        .progress-steps {
+        .feature-desc {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .feature-example {
+            background: #000;
+            border-left: 3px solid #00ff00;
+            padding: 0.8rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .feature-example i {
+            color: #00ff00;
+            margin-right: 5px;
+        }
+
+        /* ========== PROGRESS STEPS ========== */
+        .steps-container {
             margin: 2rem 0;
+            background: rgba(0, 255, 0, 0.03);
+            border-radius: 12px;
+            padding: 1.5rem;
         }
 
-        .step {
+        .steps-title {
+            color: #00ff00;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-item {
             display: flex;
             align-items: center;
             gap: 1rem;
             padding: 1rem;
-            margin-bottom: 0.5rem;
-            background: rgba(255,255,255,0.02);
-            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
         }
 
         .step-number {
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             background: #00ff00;
             color: #000;
             border-radius: 50%;
@@ -218,27 +256,16 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            font-size: 1.2rem;
         }
 
         .step-text {
             flex: 1;
+            color: #fff;
         }
 
         .step-status {
             color: #00ff00;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid #333;
-            color: #888;
-        }
-
-        .dev-name {
-            color: #00ff00;
-            font-weight: bold;
         }
 
         .blink {
@@ -250,13 +277,117 @@
             50% { opacity: 0; }
         }
 
-        @media (max-width: 600px) {
-            .features {
+        /* ========== COMMAND LINE ========== */
+        .command-box {
+            background: #000;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .command-line {
+            padding: 0.3rem 0;
+        }
+
+        .prompt {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .command {
+            color: #fff;
+        }
+
+        .output {
+            color: #888;
+            margin-left: 20px;
+            font-size: 0.9rem;
+        }
+
+        .success {
+            color: #00ff00;
+        }
+
+        /* ========== BUTTONS ========== */
+        .btn-container {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 255, 0, 0.1);
+            transform: translateY(-3px);
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #333;
+            color: #888;
+        }
+
+        .dev-name {
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .copyright {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .features-grid {
                 grid-template-columns: 1fr;
             }
             
-            .btn-group {
+            .btn-container {
                 flex-direction: column;
+            }
+            
+            .logo-section h1 {
+                font-size: 2rem;
             }
         }
     </style>
@@ -266,81 +397,278 @@
     
     <div class="intro-wrapper">
         <div class="intro-card">
+            <!-- Terminal Header -->
             <div class="terminal-header">
                 <div class="terminal-dots">
                     <span class="dot red"></span>
                     <span class="dot yellow"></span>
                     <span class="dot green"></span>
                 </div>
-                <span class="terminal-title">daily-up@setup:~</span>
-            </div>
-
-            <div class="logo">
-                <i class="fas fa-terminal"></i>
-                <h1>DAILY-UP</h1>
-                <p>Developer Habit Tracker</p>
-            </div>
-
-            <div class="command-line">
-                <div>
-                    <span class="command-prompt">$</span>
-                    <span class="command-text">./init-system.sh</span>
+                <div class="terminal-title">
+                    <i class="fas fa-terminal"></i> daily-up@learning:~ 
                 </div>
-                <div class="output">>> Initializing Daily-Up environment...</div>
-                <div class="output">>> Checking dependencies...</div>
-                <div class="output">>> <span style="color: #00ff00;">System ready!</span></div>
             </div>
 
-            <div class="welcome-message">
-                <h2>Welcome to Daily-Up!</h2>
-                <p>Your personal habit tracking system for developers</p>
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <i class="fas fa-robot"></i>
+                <h1>DAILY-UP</h1>
+                <p>Apka Personal Habit Assistant 🤖</p>
+                <div class="tagline">
+                    <i class="fas fa-star"></i> this our into face of site <i class="fas fa-star"></i>
+                </div>
             </div>
 
-            <div class="progress-steps">
-                <div class="step">
+            <!-- Welcome Message -->
+            <div class="welcome-box">
+                <h2><i class="fas fa-hand-peace"></i> Namaste Dost!</h2>
+                <p>Main hoon Daily-Up - aapki habits track karne wala robot</p>
+                <p style="color: #00ff00; margin-top: 0.5rem;">Chaliye seekhte hain sab kuch!</p>
+            </div>
+
+            <!-- Command Line Demo -->
+            <div class="command-box">
+                <div class="command-line">
+                    <span class="prompt">$</span>
+                    <span class="command"> daily-up --explain</span>
+                </div>
+                <div class="output">>> Loading features explanation...</div>
+                <div class="output">>> Ready to learn! <span class="success">✓</span></div>
+            </div>
+
+            <!-- Features Title -->
+            <div class="features-title">
+                <i class="fas fa-crown"></i>
+                <span>Daily-Up ke Saare Features (Aasan Bhasha Mein)</span>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="features-grid">
+                <!-- Feature 1: Habits -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>📋 Habits (Aadatain)</h3>
+                    <div class="feature-desc">
+                        <strong>Kya hai?</strong> Yeh woh kaam hain jo aap roz karna chahte ho.<br>
+                        <strong>Jaise:</strong> Coding, Exercise, Reading, Meditation
+                    </div>
+                    <div class="feature-example">
+                        <i class="fas fa-child"></i> Example: "Mujhe roz 1 hour coding karni hai"<br>
+                        <i class="fas fa-check-circle" style="color: #00ff00;"></i> Aap habit add karo, Daily-Up yaad dilayega!
+                    </div>
+                </div>
+
+                <!-- Feature 2: Calendar -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3>📅 Calendar (Kitaab)</h3>
+                    <div class="feature-desc">
+                        <strong>Kya hai?</strong> Calendar mein aap dekh sakte ho ki kis din kaunsa habit kiya.<br>
+                        <strong>Jaise:</strong> Monday - Coding ✅, Tuesday - Exercise ✅
+                    </div>
+                    <div class="feature-example">
+                        <i class="fas fa-child"></i> Example: "Monday ko coding ki thi? Calendar mein green tick dikhega!"<br>
+                        <i class="fas fa-school"></i> Jaise school attendance register!
+                    </div>
+                </div>
+
+                <!-- Feature 3: Streaks -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h3>🔥 Streaks (Lagataar)</h3>
+                    <div class="feature-desc">
+                        <strong>Kya hai?</strong> Streak batata hai ki aapne lagataar kitne din habit kiya.<br>
+                        <strong>Jaise:</strong> 3 din coding ki → Streak = 3 🔥
+                    </div>
+                    <div class="feature-example">
+                        <i class="fas fa-child"></i> Example: "Aaj coding ki, kal bhi ki, parson bhi ki → Streak 3!"<br>
+                        <i class="fas fa-star"></i> Break kiya to streak 0 se start!
+                    </div>
+                </div>
+
+                <!-- Feature 4: Timetable -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>⏰ Timetable (Program)</h3>
+                    <div class="feature-desc">
+                        <strong>Kya hai?</strong> Yahan aap plan kar sakte ho ki kis time kaunsa habit karna hai.<br>
+                        <strong>Jaise:</strong> 9 AM Coding, 5 PM Exercise
+                    </div>
+                    <div class="feature-example">
+                        <i class="fas fa-child"></i> Example: "Subah 9 baje coding, shaam 5 baje gym!"<br>
+                        <i class="fas fa-school"></i> Jaise school ka time table!
+                    </div>
+                </div>
+
+                <!-- Feature 5: Analytics -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>📊 Analytics (Report Card)</h3>
+                    <div class="feature-desc">
+                        <strong>Kya hai?</strong> Analytics batata hai ki aap kitne acche ho.<br>
+                        <strong>Jaise:</strong> 80% habits complete kiye, 5 din streak
+                    </div>
+                    <div class="feature-example">
+                        <i class="fas fa-child"></i> Example: "10 mein se 8 habit kiye = 80% success!"<br>
+                        <i class="fas fa-school"></i> Jaise school ka report card!
+                    </div>
+                </div>
+
+                <!-- Feature 6: Pomodoro -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <h3>🍅 Pomodoro (Focus Timer)</h3>
+                    <div class="feature-desc">
+                        <strong>Kya hai?</strong> Ek timer jo focus karne mein madad karta hai.<br>
+                        <strong>Jaise:</strong> 25 min padho, 5 min break
+                    </div>
+                    <div class="feature-example">
+                        <i class="fas fa-child"></i> Example: "25 minute coding, phir 5 minute chai break!"<br>
+                        <i class="fas fa-gamepad"></i> 4 baar repeat karo, phir 15 min long break!
+                    </div>
+                </div>
+
+                <!-- Feature 7: Journal -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3>📔 Journal (Diary)</h3>
+                    <div class="feature-desc">
+                        <strong>Kya hai?</strong> Yahan aap apne din ke baare mein likh sakte ho.<br>
+                        <strong>Jaise:</strong> Aaj mood kaisa tha? Kya seekha?
+                    </div>
+                    <div class="feature-example">
+                        <i class="fas fa-child"></i> Example: "Aaj bahut maza aaya! Mood 10/10 😊"<br>
+                        <i class="fas fa-heart"></i> Gratitude likho - aaj kiske liye thankful ho!
+                    </div>
+                </div>
+
+                <!-- Feature 8: Challenges -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>🏆 Challenges (Muqabla)</h3>
+                    <div class="feature-desc">
+                        <strong>Kya hai?</strong> Doosron ke saath compete karo ya khud ko challenge do.<br>
+                        <strong>Jaise:</strong> 7 din coding challenge
+                    </div>
+                    <div class="feature-example">
+                        <i class="fas fa-child"></i> Example: "7 din lagataar coding karo, inaam pao!"<br>
+                        <i class="fas fa-star"></i> Leaderboard pe apna rank dekho!
+                    </div>
+                </div>
+
+                <!-- Feature 9: Chat -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>💬 Random Chat (Baatcheet)</h3>
+                    <div class="feature-desc">
+                        <strong>Kya hai?</strong> Yahan aap doosre users se baat kar sakte ho.<br>
+                        <strong>Jaise:</strong> Kisi se bhi random chat karo!
+                    </div>
+                    <div class="feature-example">
+                        <i class="fas fa-child"></i> Example: "Koi coding seekh raha hai? Baat karo!"<br>
+                        <i class="fas fa-shield"></i> Admin special powers bhi hain!
+                    </div>
+                </div>
+
+                <!-- Feature 10: Skills -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>🧠 Skills Focus (Hunar)</h3>
+                    <div class="feature-desc">
+                        <strong>Kya hai?</strong> Yahan aap apni skills track kar sakte ho.<br>
+                        <strong>Jaise:</strong> JavaScript seekh rahe ho to progress dekho
+                    </div>
+                    <div class="feature-example">
+                        <i class="fas fa-child"></i> Example: "JavaScript 65% complete, aur 35% baki!"<br>
+                        <i class="fas fa-chart-simple"></i> Har skill ka level dikhta hai!
+                    </div>
+                </div>
+            </div>
+
+            <!-- How to Use - 3 Simple Steps -->
+            <div class="steps-container">
+                <div class="steps-title">
+                    <i class="fas fa-stairs"></i> 3 Simple Steps - Daily-Up Use Karne Ka Tarika
+                </div>
+                
+                <div class="step-item">
                     <div class="step-number">1</div>
-                    <div class="step-text">Create your account</div>
+                    <div class="step-text">
+                        <strong>Register / Login karo</strong><br>
+                        <span style="color: #888;">Apna account banao ya login karo</span>
+                    </div>
                     <div class="step-status"><i class="fas fa-circle blink"></i></div>
                 </div>
-                <div class="step">
+
+                <div class="step-item">
                     <div class="step-number">2</div>
-                    <div class="step-text">Add your first habit</div>
+                    <div class="step-text">
+                        <strong>Habit add karo</strong><br>
+                        <span style="color: #888;">"Add Habit" button dabao aur apni habit likho</span>
+                    </div>
                     <div class="step-status"><i class="fas fa-circle"></i></div>
                 </div>
-                <div class="step">
+
+                <div class="step-item">
                     <div class="step-number">3</div>
-                    <div class="step-text">Start tracking daily</div>
+                    <div class="step-text">
+                        <strong>Roz complete karo</strong><br>
+                        <span style="color: #888;">Habit complete karne par checkbox dabao, XP badega!</span>
+                    </div>
                     <div class="step-status"><i class="fas fa-circle"></i></div>
                 </div>
             </div>
 
-            <div class="features">
-                <div class="feature-item">
-                    <i class="fas fa-calendar-alt"></i> Calendar
+            <!-- XP and Level Explanation -->
+            <div style="background: #000; border-radius: 8px; padding: 1rem; margin: 1rem 0; border-left: 4px solid #00ff00;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;">
+                    <i class="fas fa-star" style="color: #00ff00; font-size: 1.5rem;"></i>
+                    <span style="color: #00ff00; font-weight: bold;">XP aur Level kya hai?</span>
                 </div>
-                <div class="feature-item">
-                    <i class="fas fa-chart-line"></i> Analytics
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-fire"></i> Streaks
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-clock"></i> Timetable
-                </div>
+                <p style="color: #888; margin-left: 2rem;">
+                    • <strong>XP</strong> = Experience Points (Anubhav). Har habit complete karne par 50 XP milte hain!<br>
+                    • <strong>Level</strong> = 100 XP collect karne par level up! Level 1 → Level 2<br>
+                    • <strong>Badges</strong> = Kuch khaas kaam karne par (7 din streak) badge milta hai!
+                </p>
             </div>
 
-            <div class="btn-group">
+            <!-- Buttons -->
+            <div class="btn-container">
                 <a href="/register" class="btn btn-primary">
-                    <i class="fas fa-user-plus"></i> Get Started
+                    <i class="fas fa-user-plus"></i> Naya Account Banayein
                 </a>
                 <a href="/login" class="btn btn-secondary">
-                    <i class="fas fa-key"></i> Login
+                    <i class="fas fa-key"></i> Pehle se account hai? Login karein
                 </a>
             </div>
 
+            <!-- Footer -->
             <div class="footer">
-                <p>Developed by <span class="dev-name">UNSEEN-TERMINATION</span></p>
-                <p style="font-size: 0.8rem; margin-top: 0.5rem;">© 2026 Daily-Up. All rights reserved.</p>
+                <p>Developed with <i class="fas fa-heart" style="color: #ff3366;"></i> by <span class="dev-name">UNSEEN-TERMINATION</span></p>
+                <p class="copyright">© 2026 Daily-Up. Sabhi adhikar surakshit. </p>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #444;">
+                    <i class="fas fa-terminal"></i> Version 2.0 | Made in India 🇮🇳
+                </p>
             </div>
         </div>
     </div>

@@ -90,6 +90,7 @@ router.post('/register', async (req, res) => {
             username,
             email,
             password: hashedPassword,
+            role: 'user', // Default role
             profile: {
                 name: username,
                 bio: '',
@@ -113,7 +114,8 @@ router.post('/register', async (req, res) => {
             { 
                 userId: user._id, 
                 username: user.username,
-                email: user.email 
+                email: user.email,
+                role: user.role
             },
             JWT_SECRET,
             { expiresIn: '7d' }
@@ -128,6 +130,7 @@ router.post('/register', async (req, res) => {
                 id: user._id,
                 username: user.username,
                 email: user.email,
+                role: user.role,
                 streak: user.streak,
                 profile: user.profile
             }
@@ -230,7 +233,8 @@ router.post('/login', async (req, res) => {
             { 
                 userId: user._id, 
                 username: user.username,
-                email: user.email 
+                email: user.email,
+                role: user.role
             },
             JWT_SECRET,
             { expiresIn: '7d' }
@@ -245,6 +249,7 @@ router.post('/login', async (req, res) => {
                 id: user._id,
                 username: user.username,
                 email: user.email,
+                role: user.role,
                 streak: user.streak,
                 profile: user.profile,
                 settings: user.settings
@@ -281,6 +286,7 @@ router.get('/verify', async (req, res) => {
                 id: user._id,
                 username: user.username,
                 email: user.email,
+                role: user.role,
                 streak: user.streak,
                 profile: user.profile,
                 settings: user.settings
@@ -292,6 +298,29 @@ router.get('/verify', async (req, res) => {
             error: 'Invalid token',
             valid: false 
         });
+    }
+});
+
+// ========== MAKE USER ADMIN (SPECIAL ROUTE) ==========
+router.post('/make-admin', async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        // This should be protected in production!
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        user.role = 'admin';
+        await user.save();
+        
+        res.json({ message: `User ${user.username} is now admin` });
+        
+    } catch (error) {
+        console.error('Make admin error:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 

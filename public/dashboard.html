@@ -841,7 +841,7 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
-
+ 
         .skill-card:hover::before {
             opacity: 1;
         }
@@ -885,7 +885,7 @@
 
         .skill-progress {
             margin: 1rem 0;
-        }
+        } */
 
         .progress-bar {
             width: 100%;
@@ -1408,31 +1408,42 @@
                 </div>
             </div>
         </div>
-        
         <ul class="sidebar-menu">
-            <li class="active" data-page="dashboard">
-                <a><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
-            </li>
-            <li data-page="habits">
-                <a><i class="fas fa-tasks"></i> <span>My Habits</span></a>
-            </li>
-            <li data-page="calendar">
-                <a><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a>
-            </li>
-            <li data-page="timetable">
-                <a><i class="fas fa-clock"></i> <span>Time Table</span></a>
-            </li>
-            <li data-page="analytics">
-                <a><i class="fas fa-chart-bar"></i> <span>Analytics</span></a>
-            </li>
-            <li data-page="skills">
-                <a><i class="fas fa-brain"></i> <span>Skills Focus</span></a>
-            </li>
-            <li data-page="profile">
-                <a href="/profile"><i class="fas fa-user-cog"></i> <span>Profile</span></a>
-            </li>
-        </ul>
-        
+    <li class="active" data-page="dashboard">
+        <a><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+    </li>
+    <li data-page="habits">
+        <a><i class="fas fa-tasks"></i> <span>My Habits</span></a>
+    </li>
+    <li data-page="calendar">
+        <a><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a>
+    </li>
+    <li data-page="timetable">
+        <a><i class="fas fa-clock"></i> <span>Time Table</span></a>
+    </li>
+    <li data-page="analytics">
+        <a><i class="fas fa-chart-bar"></i> <span>Analytics</span></a>
+    </li>
+    <li data-page="skills">
+        <a><i class="fas fa-brain"></i> <span>Skills Focus</span></a>
+    </li>
+    <!-- YEH NAYE LINKS ADD KARO -->
+    <li data-page="pomodoro">
+        <a><i class="fas fa-hourglass-half"></i> <span>Pomodoro</span></a>
+    </li>
+    <li data-page="journal">
+        <a><i class="fas fa-book"></i> <span>Journal</span></a>
+    </li>
+    <li data-page="challenges">
+        <a><i class="fas fa-trophy"></i> <span>Challenges</span></a>
+    </li>
+    <li data-page="chat">
+        <a><i class="fas fa-comments"></i> <span>Random Chat</span></a>
+    </li>
+    <li data-page="profile">
+        <a><i class="fas fa-user-cog"></i> <span>Profile</span></a>
+    </li>
+</ul>
         <div class="sidebar-footer">
             <div class="motivation-card">
                 <h4><i class="fas fa-robot"></i> Daily Tip</h4>
@@ -1599,6 +1610,9 @@
                         <i class="fas fa-brain"></i>
                         <span>Skills Focus</span>
                     </h2>
+                    <h1 style="color: yellow;">
+                        THIS PAGE IS COMING SOON....
+                    </h1>
                 </div>
                 <div class="skills-grid" id="skillsGrid">
                     <div class="loading-skills">
@@ -1609,36 +1623,68 @@
             </section>
         </div>
         
-        <!-- Hidden Pages -->
-        <div class="page-content" id="habitsPage" style="display: none;">
-            <h2><i class="fas fa-tasks"></i> All Habits</h2>
-            <div class="habits-grid" id="allHabitsGrid"></div>
-        </div>
-        
-        <div class="page-content" id="calendarPage" style="display: none;">
-            <h2><i class="fas fa-calendar-alt"></i> Full Calendar</h2>
-            <div id="fullCalendar"></div>
-        </div>
-        
-        <div class="page-content" id="timetablePage" style="display: none;">
-            <h2><i class="fas fa-clock"></i> Time Table</h2>
-            <div id="fullTimetable"></div>
-        </div>
-        
-        <div class="page-content" id="analyticsPage" style="display: none;">
-            <h2><i class="fas fa-chart-bar"></i> Analytics</h2>
-            <div id="analyticsContent"></div>
-        </div>
-        
-        <div class="page-content" id="skillsPage" style="display: none;">
-            <h2><i class="fas fa-brain"></i> Skills Focus</h2>
-            <div class="skills-grid" id="skillsPageGrid"></div>
-        </div>
-        
-        <div class="page-content" id="profilePage" style="display: none;">
-            <h2><i class="fas fa-user-cog"></i> Profile</h2>
-            <div id="profileContent"></div>
-        </div>
+       <!-- Hidden Pages - YEH POORA SECTION CHECK KARO -->
+<div class="page-content" id="habitsPage" style="display: none;">
+    <h2><i class="fas fa-tasks"></i> All Habits</h2>
+    <div class="habits-grid" id="allHabitsGrid"></div>
+</div>
+
+<div class="page-content" id="calendarPage" style="display: none;">
+    <h2><i class="fas fa-calendar-alt"></i> Full Calendar</h2>
+    <div id="fullCalendar"></div>
+</div>
+
+<div class="page-content" id="timetablePage" style="display: none;">
+    <h2><i class="fas fa-clock"></i> Time Table</h2>
+    <div id="fullTimetable"></div>
+</div>
+
+<div class="page-content" id="analyticsPage" style="display: none;">
+    <h2><i class="fas fa-chart-bar"></i> Analytics</h2>
+    <div id="analyticsContent"></div>
+</div>
+
+<div class="page-content" id="skillsPage" style="display: none;">
+    <h2><i class="fas fa-brain"></i> Skills Focus</h2>
+    <div class="skills-grid" id="skillsPageGrid"></div>
+</div>
+
+<!-- YEH PAGES PEHLE SE HONGE -->
+<div class="page-content" id="pomodoroPage" style="display: none;">
+    <h2><i class="fas fa-clock"></i> Pomodoro Timer</h2>
+    <div id="pomodoroContent">
+        <p style="color: var(--text-muted); text-align: center; padding: 2rem;">
+            <i class="fas fa-spinner fa-spin"></i> Loading Pomodoro...
+        </p>
+    </div>
+</div>
+
+<div class="page-content" id="journalPage" style="display: none;">
+    <h2><i class="fas fa-book"></i> Journal</h2>
+    <div id="journalContent">
+        <p style="color: var(--text-muted); text-align: center; padding: 2rem;">
+            <i class="fas fa-spinner fa-spin"></i> Loading Journal...
+        </p>
+    </div>
+</div>
+
+<div class="page-content" id="challengesPage" style="display: none;">
+    <h2><i class="fas fa-trophy"></i> Challenges</h2>
+    <div id="challengesContent">
+        <p style="color: var(--text-muted); text-align: center; padding: 2rem;">
+            <i class="fas fa-spinner fa-spin"></i> Loading Challenges...
+        </p>
+    </div>
+</div>
+
+<div class="page-content" id="chatPage" style="display: none;">
+    <h2><i class="fas fa-comments"></i> Random Chat</h2>
+    <div id="chatContent">
+        <p style="color: var(--text-muted); text-align: center; padding: 2rem;">
+            <i class="fas fa-spinner fa-spin"></i> Loading Chat...
+        </p>
+    </div>
+</div>
     </main>
     
     <!-- Add Habit Modal -->
