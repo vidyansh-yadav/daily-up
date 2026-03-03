@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Dashboard | Daily-Up</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -65,6 +65,7 @@
 
         .loading-terminal {
             width: 500px;
+            max-width: 90vw;
             background: var(--terminal-bg);
             border: 1px solid var(--primary-color);
             border-radius: 8px;
@@ -129,22 +130,278 @@
             to { width: 100%; }
         }
 
+        /* Responsive Sidebar - Mobile First */
         .sidebar {
             position: fixed;
             left: 0;
             top: 0;
             height: 100vh;
             width: 260px;
-            background: rgba(10, 10, 10, 0.95);
+            background: rgba(10, 10, 10, 0.98);
             border-right: 1px solid var(--border-color);
-            padding: 1.5rem;
+            padding: 1.5rem 1rem;
             display: flex;
             flex-direction: column;
             backdrop-filter: blur(10px);
-            z-index: 100;
+            z-index: 1000;
             overflow-y: auto;
+            transition: transform 0.3s ease;
         }
 
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border: 2px solid var(--dark-bg);
+            box-shadow: 0 0 20px rgba(0,255,0,0.3);
+        }
+
+        /* Overlay for mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+        }
+
+        /* Main Content Responsive */
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar-overlay.active {
+                display: block;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .top-bar {
+                padding: 1rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            
+            .search-box {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .top-bar-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .welcome-banner {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.5rem;
+            }
+            
+            .welcome-text h1 {
+                font-size: 1.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .habits-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .achievement-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .welcome-stats {
+                width: 100%;
+            }
+            
+            .stat-card {
+                width: 100%;
+            }
+            
+            .timetable {
+                overflow-x: auto;
+            }
+            
+            .time-slot {
+                min-width: 300px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+            
+            .motivation-popup {
+                width: 90%;
+                right: 5%;
+                left: 5%;
+                bottom: 1rem;
+            }
+            
+            .notifications-panel {
+                width: 90%;
+                right: 5%;
+                left: 5%;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .user-menu-btn span {
+                display: none;
+            }
+            
+            .user-menu-btn i {
+                margin: 0;
+            }
+            
+            .add-habit-btn span {
+                display: none;
+            }
+            
+            .add-habit-btn i {
+                margin: 0;
+            }
+            
+            .logo span {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Tablet Styles */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .sidebar {
+                width: 220px;
+            }
+            
+            .main-content {
+                margin-left: 220px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .habits-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .achievement-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .skills-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .search-box {
+                width: 200px;
+            }
+        }
+
+        /* Small Mobile */
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.5rem;
+            }
+            
+            .terminal-content p {
+                font-size: 0.8rem;
+            }
+            
+            .btn {
+                padding: 0.8rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar-menu a {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            
+            .logo {
+                font-size: 1.1rem;
+            }
+            
+            .avatar {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        /* Keep all your existing styles below */
         .sidebar-header {
             display: flex;
             justify-content: space-between;
@@ -341,11 +598,6 @@
             font-weight: bold;
             font-size: 1rem;
             margin-top: 0.2rem;
-        }
-
-        .main-content {
-            margin-left: 260px;
-            min-height: 100vh;
         }
 
         .top-bar {
@@ -885,7 +1137,7 @@
 
         .skill-progress {
             margin: 1rem 0;
-        } */
+        }
 
         .progress-bar {
             width: 100%;
@@ -1370,8 +1622,16 @@
         </div>
     </div>
 
+    <!-- Mobile Menu Toggle -->
+    <div class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- Sidebar Navigation -->
-    <nav class="sidebar">
+    <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="logo">
                 <i class="fas fa-terminal"></i>
@@ -1457,7 +1717,7 @@
     </nav>
     
     <!-- Main Content Area -->
-    <main class="main-content">
+    <main class="main-content" id="mainContent">
         <!-- Top Navigation Bar -->
         <header class="top-bar">
             <div class="search-box">
@@ -1820,7 +2080,57 @@
     <!-- Hidden file input for profile picture -->
     <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
 
-    <!-- Scripts -->
+    <script>
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const mainContent = document.getElementById('mainContent');
+
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        }
+
+        function openSidebar() {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active');
+        }
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (sidebar.classList.contains('active')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+        }
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', closeSidebar);
+        }
+
+        // Close sidebar on window resize if in desktop mode
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                closeSidebar();
+            }
+        });
+
+        // Close sidebar when clicking on a menu item (mobile)
+        document.querySelectorAll('.sidebar-menu li').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        // Your existing dashboard.js functionality will work alongside this
+        // Keep all your existing JavaScript code below
+    </script>
     <script src="js/auth.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
