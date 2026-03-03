@@ -6,6 +6,55 @@
     <title>Register | Daily-Up - Developer Habit Tracker</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Additional styles for password toggle */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        .password-wrapper input {
+            width: 100%;
+            padding-right: 40px !important;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #00ff00;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .toggle-password:hover {
+            opacity: 1;
+        }
+        
+        .error-message {
+            color: #ff3333;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ff3333;
+            border-radius: 4px;
+            background: rgba(255, 51, 51, 0.1);
+            font-size: 0.9rem;
+        }
+        
+        .success-message {
+            color: #00ff00;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            background: rgba(0, 255, 0, 0.1);
+        }
+    </style>
 </head>
 <body class="hacker-theme register-page">
     <div class="matrix-background"></div>
@@ -31,6 +80,9 @@
                     <h1 class="auth-title glitch" data-text="CREATE ACCOUNT">CREATE ACCOUNT</h1>
                     <p class="auth-subtitle">Join the productivity revolution</p>
                     
+                    <div id="errorMessage" class="error-message" style="display: none;"></div>
+                    <div id="successMessage" class="success-message" style="display: none;"></div>
+                    
                     <form id="registerForm">
                         <div class="input-group">
                             <i class="fas fa-user"></i>
@@ -44,18 +96,22 @@
                         
                         <div class="input-group">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="password" placeholder="PASSWORD" required>
-                            <button type="button" class="show-password">
-                                <i class="fas fa-eye"></i>
-                            </button>
+                            <div class="password-wrapper">
+                                <input type="password" id="password" placeholder="PASSWORD" required>
+                                <button type="button" class="toggle-password" onclick="togglePassword('password', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="input-group">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="confirmPassword" placeholder="CONFIRM PASSWORD" required>
-                            <button type="button" class="show-password">
-                                <i class="fas fa-eye"></i>
-                            </button>
+                            <div class="password-wrapper">
+                                <input type="password" id="confirmPassword" placeholder="CONFIRM PASSWORD" required>
+                                <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="form-group">
@@ -65,9 +121,7 @@
                             </label>
                         </div>
                         
-                        <div id="error-message" class="error-message" style="display: none;"></div>
-                        
-                        <button type="submit" class="auth-submit">
+                        <button type="submit" class="auth-submit" id="submitBtn">
                             <i class="fas fa-user-plus"></i> CREATE ACCOUNT
                             <span class="loading-spinner" style="display: none;">
                                 <i class="fas fa-spinner fa-spin"></i>
@@ -141,48 +195,108 @@
         </div>
     </div>
 
-    <script src="js/auth.js"></script>
-        <script>
-    document.getElementById('registerForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        const errorDiv = document.getElementById('errorMessage');
-        
-        if (password !== confirmPassword) {
-            errorDiv.textContent = 'Passwords do not match';
-            errorDiv.style.display = 'block';
-            return;
-        }
-        
-        try {
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, email, password })
-            });
+    <script>
+        // Password toggle function
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
             
-            const data = await response.json();
-            
-            if (response.ok) {
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
-                window.location.href = '/dashboard';
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
             } else {
-                errorDiv.textContent = data.error || 'Registration failed';
-                errorDiv.style.display = 'block';
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
-        } catch (error) {
-            errorDiv.textContent = 'Network error. Please try again.';
-            errorDiv.style.display = 'block';
         }
-    });
-</script>
-    
+
+        // Form submission
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const terms = document.getElementById('terms').checked;
+            
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = document.querySelector('.loading-spinner');
+            
+            // Hide previous messages
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            // Validation
+            if (!username || !email || !password || !confirmPassword) {
+                errorDiv.textContent = 'All fields are required!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorDiv.textContent = 'Password must be at least 6 characters!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (!terms) {
+                errorDiv.textContent = 'Please agree to Terms & Conditions!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Show loading
+            submitBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Success - save token and redirect
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    successDiv.textContent = 'Registration successful! Redirecting...';
+                    successDiv.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1000);
+                } else {
+                    // Show error from server
+                    errorDiv.textContent = data.error || 'Registration failed. Please try again.';
+                    errorDiv.style.display = 'block';
+                    submitBtn.disabled = false;
+                    spinner.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                errorDiv.textContent = 'Network error. Please check if server is running.';
+                errorDiv.style.display = 'block';
+                submitBtn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
