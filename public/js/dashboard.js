@@ -48,47 +48,49 @@ class Dashboard {
     }
 
     async init() {
-        try {
-            this.showLoading();
-            
-            // Verify token with server
-            await this.verifyUser();
-            
-            // Load all data
-            await this.loadHabits();
-            await this.loadStats();
-            await this.loadGamification();
-            await this.loadSkills();
-            
-            // Update UI
-            this.updateUserProfile();
-            this.renderGamification();
-            this.renderHabits();
-            this.renderStats();
-            this.setupCharts();
-            this.setupCalendars();
-            this.setupTimetable();
-            this.renderSkills();
-            this.setupEventListeners();
-            this.addWatermark();
-            this.setupMusicSystem();
-            this.setupProfilePictureUpload();
-            
-            this.hideLoading();
-            
-            console.log('✅ Dashboard ready');
-        } catch (error) {
-            console.error('Dashboard error:', error);
-            this.hideLoading();
-            this.showError('Failed to load dashboard');
-            
-            if (error.message === 'Invalid token') {
-                localStorage.clear();
-                window.location.href = '/login';
-            }
+    try {
+        this.showLoading();
+        
+        // Verify token with server
+        await this.verifyUser();
+        
+        // Load all data
+        await this.loadHabits();
+        await this.loadStats();
+        await this.loadGamification();
+        await this.loadSkills();
+        
+        // Update UI
+        this.updateUserProfile();
+        this.renderGamification();
+        this.renderHabits();
+        this.renderStats();
+        this.setupCharts();
+        this.setupCalendars();
+        this.setupTimetable();
+        this.renderSkills();
+        this.setupEventListeners();
+        this.addWatermark();
+        this.setupMusicSystem();
+        this.setupProfilePictureUpload();
+        
+        // Check rating status (ADD THIS LINE)
+        this.checkRatingStatus();
+        
+        this.hideLoading();
+        
+        console.log('✅ Dashboard ready');
+    } catch (error) {
+        console.error('Dashboard error:', error);
+        this.hideLoading();
+        this.showError('Failed to load dashboard');
+        
+        if (error.message === 'Invalid token') {
+            localStorage.clear();
+            window.location.href = '/login';
         }
     }
-
+}
     addWatermark() {
         const watermark = document.createElement('div');
         watermark.style.cssText = `
@@ -105,7 +107,121 @@ class Dashboard {
         watermark.innerHTML = `21K School • UNSEEN-TERMINATION • ${new Date().getFullYear()}`;
         document.body.appendChild(watermark);
     }
+// ========== RATING SYSTEM ==========
 
+// Check if user has already rated
+checkRatingStatus() {
+    const lastRatingTime = localStorage.getItem('lastRatingTime');
+    const hasRated = localStorage.getItem('hasRated') === 'true';
+    
+    // Agar kabhi rate nahi kiya to modal dikhao
+    if (!hasRated) {
+        // Check if 30 minutes have passed since last reminder
+        if (lastRatingTime) {
+            const lastTime = parseInt(lastRatingTime);
+            const now = Date.now();
+            const thirtyMinutes = 30 * 60 * 1000; // 30 minutes
+            
+            if (now - lastTime > thirtyMinutes) {
+                this.showRatingModal();
+            }
+        } else {
+            // Pehli baar, 2 minute baad dikhao
+            setTimeout(() => {
+                this.showRatingModal();
+            }, 20000); // 2 minutes
+        }
+    }
+}
+
+// Show rating modal
+showRatingModal() {
+    const modal = document.getElementById('ratingModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        
+        // Reset stars
+        document.querySelectorAll('.rating-stars i').forEach(star => {
+            star.className = 'far fa-star';
+        });
+        document.getElementById('selectedRating').textContent = '0';
+        document.getElementById('ratingFeedback').value = '';
+        
+        // Add star click handlers
+        document.querySelectorAll('.rating-stars i').forEach(star => {
+            star.onclick = () => {
+                const rating = parseInt(star.dataset.rating);
+                this.setRating(rating);
+            };
+        });
+    }
+}
+
+// Close rating modal
+closeRatingModal() {
+    const modal = document.getElementById('ratingModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Remind later
+remindLater() {
+    localStorage.setItem('lastRatingTime', Date.now().toString());
+    this.closeRatingModal();
+    this.showNotification('✅ 30 minute baad phir yaad dilayenge!', 'info');
+}
+
+// Set rating stars
+setRating(rating) {
+    document.querySelectorAll('.rating-stars i').forEach(star => {
+        const starRating = parseInt(star.dataset.rating);
+        if (starRating <= rating) {
+            star.className = 'fas fa-star active';
+        } else {
+            star.className = 'far fa-star';
+        }
+    });
+    document.getElementById('selectedRating').textContent = rating;
+}
+
+// Submit rating to WhatsApp
+submitRating() {
+    const stars = document.querySelectorAll('.rating-stars i.fas.fa-star.active').length;
+    const rating = stars || 0;
+    const feedback = document.getElementById('ratingFeedback').value.trim();
+    const username = this.user?.username || 'Unknown User';
+    const email = this.user?.email || 'No Email';
+    
+    if (rating === 0) {
+        this.showNotification('कृपया स्टार रेटिंग दें!', 'error');
+        return;
+    }
+    
+    // Prepare WhatsApp message
+    const message = `🌟 *New Rating from Daily-Up!* 🌟\n\n` +
+                    `👤 *User:* ${username}\n` +
+                    `📧 *Email:* ${email}\n` +
+                    `⭐ *Rating:* ${rating}/5\n` +
+                    `💬 *Feedback:* ${feedback || 'No feedback provided'}\n` +
+                    `📅 *Time:* ${new Date().toLocaleString()}`;
+    
+    // Encode for URL
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Your WhatsApp number
+    const phoneNumber = '919811282541'; // 9811282541 with country code
+    
+    // Open WhatsApp
+    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+    
+    // Save that user has rated
+    localStorage.setItem('hasRated', 'true');
+    localStorage.removeItem('lastRatingTime');
+    
+    this.closeRatingModal();
+    this.showNotification('✅ धन्यवाद! आपकी रेटिंग भेज दी गई है।', 'success');
+}
     // ========== PROFILE PICTURE UPLOAD ==========
     setupProfilePictureUpload() {
         const avatar = document.getElementById('userAvatar');
