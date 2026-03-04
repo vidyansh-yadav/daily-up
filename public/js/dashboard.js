@@ -1099,21 +1099,31 @@ submitRating() {
             console.error('Failed to load gamification:', error);
         }
     }
-
-    renderGamification() {
-        const levelEl = document.getElementById('userLevel');
-        if (levelEl && this.gamification) {
+renderGamification() {
+    console.log('Rendering gamification with data:', this.gamification);
+    
+    const levelEl = document.getElementById('userLevel');
+    if (levelEl) {
+        if (this.gamification && this.gamification.gamification) {
             levelEl.innerHTML = `
                 <div class="level-badge">
-                    <i class="fas fa-star"></i> Level ${this.gamification.gamification?.level || 1}
+                    <i class="fas fa-star"></i> Level ${this.gamification.gamification.level || 1}
+                </div>
+            `;
+        } else {
+            levelEl.innerHTML = `
+                <div class="level-badge">
+                    <i class="fas fa-star"></i> Level 1
                 </div>
             `;
         }
-        
-        const xpBar = document.getElementById('xpBar');
-        if (xpBar && this.gamification) {
-            const currentXP = this.gamification.gamification?.xp || 0;
-            const nextLevelXP = this.gamification.gamification?.xpToNextLevel || 100;
+    }
+    
+    const xpBar = document.getElementById('xpBar');
+    if (xpBar) {
+        if (this.gamification && this.gamification.gamification) {
+            const currentXP = this.gamification.gamification.xp || 0;
+            const nextLevelXP = this.gamification.gamification.xpToNextLevel || 100;
             const percentage = (currentXP / nextLevelXP) * 100;
             
             xpBar.innerHTML = `
@@ -1125,10 +1135,22 @@ submitRating() {
                     <span>Next: ${nextLevelXP} XP</span>
                 </div>
             `;
+        } else {
+            xpBar.innerHTML = `
+                <div class="xp-bar">
+                    <div class="xp-fill" style="width: 0%"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 0.3rem;">
+                    <span>0 XP</span>
+                    <span>Next: 100 XP</span>
+                </div>
+            `;
         }
-        
-        const recentEl = document.getElementById('recentAchievements');
-        if (recentEl && this.gamification?.achievements) {
+    }
+    
+    const recentEl = document.getElementById('recentAchievements');
+    if (recentEl) {
+        if (this.gamification && this.gamification.achievements && this.gamification.achievements.length > 0) {
             const recent = this.gamification.achievements
                 .filter(a => a.completed)
                 .slice(0, 3);
@@ -1141,10 +1163,13 @@ submitRating() {
                     </div>
                 `).join('');
             } else {
-                recentEl.innerHTML = '<p style="color: var(--text-muted);">No achievements yet</p>';
+                recentEl.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No achievements yet</p>';
             }
+        } else {
+            recentEl.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Complete habits to earn achievements!</p>';
         }
     }
+}
 
     updateUserProfile() {
         document.getElementById('username').textContent = this.user.username || 'Developer';
@@ -1423,52 +1448,61 @@ submitRating() {
     }
 
     async completeHabit(habitId, completed) {
-        if (!completed) return;
+    if (!completed) return;
 
-        try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${this.apiUrl}/habits/${habitId}/complete`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ date: new Date().toISOString() })
-            });
+    try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${this.apiUrl}/habits/${habitId}/complete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ date: new Date().toISOString() })
+        });
 
-            if (res.ok) {
-                const data = await res.json();
-                
-                this.showNotification('✅ +50 XP!', 'success');
-                
-                try {
-                    const audio = new Audio('/sound/notifiaction.mp3');
-                    audio.volume = 0.3;
-                    audio.play();
-                } catch (e) {}
-                
-                if (data.levelUp) {
-                    this.showLevelUp(data.newLevel);
-                }
-                
-                await this.loadHabits();
-                await this.loadStats();
-                await this.loadGamification();
-                
-                this.renderHabits();
-                this.renderStats();
-                this.renderGamification();
-                this.updateCharts();
-                this.setupTimetable();
-            } else {
-                this.showNotification('❌ Failed to complete', 'error');
+        if (res.ok) {
+            const data = await res.json();
+            
+            // Show XP notification
+            if (data.xpAdded > 0) {
+                this.showNotification(`✅ +${data.xpAdded} XP!`, 'success');
             }
-        } catch (error) {
-            console.error('Complete habit error:', error);
-            this.showNotification('Network error', 'error');
+            
+            // Play sound if enabled
+            try {
+                const audio = new Audio('/sound/notifiaction.mp3');
+                audio.volume = 0.3;
+                audio.play();
+            } catch (e) {}
+            
+            // Check for level up
+            if (data.levelUp) {
+                this.showLevelUp(data.newLevel);
+            }
+            
+            // Reload ALL data
+            await this.loadHabits();
+            await this.loadStats();
+            await this.loadGamification(); // IMPORTANT: Reload gamification data
+            
+            // Update ALL UI components
+            this.renderHabits();
+            this.renderStats();
+            this.renderGamification(); // This updates XP bar and level
+            this.updateCharts();
+            this.setupTimetable();
+            
+            console.log('✅ All data reloaded and UI updated');
+        } else {
+            const err = await res.json();
+            this.showNotification(err.error || 'Failed to complete', 'error');
         }
+    } catch (error) {
+        console.error('Complete habit error:', error);
+        this.showNotification('Network error', 'error');
     }
-
+}
     showLevelUp(level) {
         const animation = document.createElement('div');
         animation.style.cssText = `

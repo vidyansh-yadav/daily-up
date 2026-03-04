@@ -17,7 +17,7 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-// Get all habits for user
+// ========== GET ALL HABITS ==========
 router.get('/', verifyToken, async (req, res) => {
     try {
         const habits = await Habit.find({ userId: req.userId })
@@ -29,9 +29,11 @@ router.get('/', verifyToken, async (req, res) => {
     }
 });
 
-// Create new habit
+// ========== CREATE NEW HABIT ==========
 router.post('/', verifyToken, async (req, res) => {
     try {
+        console.log('Creating habit for user:', req.userId);
+        
         const habitData = {
             ...req.body,
             userId: req.userId
@@ -40,17 +42,19 @@ router.post('/', verifyToken, async (req, res) => {
         const habit = new Habit(habitData);
         await habit.save();
         
+        console.log('✅ Habit created:', habit.title);
+        
         res.status(201).json({
             message: 'Habit created successfully',
             habit
         });
     } catch (error) {
         console.error('Create habit error:', error);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Server error: ' + error.message });
     }
 });
 
-// Update habit
+// ========== UPDATE HABIT ==========
 router.put('/:id', verifyToken, async (req, res) => {
     try {
         const habit = await Habit.findOneAndUpdate(
@@ -73,7 +77,7 @@ router.put('/:id', verifyToken, async (req, res) => {
     }
 });
 
-// Mark habit as completed - REAL-TIME UPDATE
+// ========== MARK HABIT AS COMPLETED (WITH XP) ==========
 router.post('/:id/complete', verifyToken, async (req, res) => {
     try {
         const { date, timeSpent, notes } = req.body;
@@ -98,7 +102,7 @@ router.post('/:id/complete', verifyToken, async (req, res) => {
         if (!alreadyCompleted) {
             habit.completedDates.push({
                 date: completionDate,
-                timeSpent: timeSpent || 30, // default 30 minutes
+                timeSpent: timeSpent || 30,
                 notes: notes || ''
             });
             
@@ -124,7 +128,7 @@ router.post('/:id/complete', verifyToken, async (req, res) => {
                 habit.statistics.longestStreak = habit.statistics.streak;
             }
             
-            // Calculate success rate (last 30 days)
+            // Calculate success rate
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
             
@@ -138,16 +142,90 @@ router.post('/:id/complete', verifyToken, async (req, res) => {
             
             await habit.save();
             
-            // Return updated habit for real-time update
-            res.json({
-                message: 'Habit marked as completed',
-                habit,
-                stats: {
-                    streak: habit.statistics.streak,
-                    totalCompletions: habit.statistics.totalCompletions,
-                    successRate: habit.statistics.successRate
+            // ========== ADD XP FOR COMPLETING HABIT ==========
+            const XP_AMOUNT = 50;
+            
+            try {
+                // Use internal function call instead of HTTP request
+                const User = require('../models/User');
+                const user = await User.findById(req.userId);
+                
+                if (!user) {
+                    throw new Error('User not found');
                 }
-            });
+                
+                // Initialize gamification if not exists
+                if (!user.gamification) {
+                    user.gamification = {
+                        level: 1,
+                        xp: 0,
+                        xpToNextLevel: 100,
+                        totalXpEarned: 0,
+                        badges: [],
+                        achievements: []
+                    };
+                }
+                
+                // Add XP
+                user.gamification.xp += XP_AMOUNT;
+                user.gamification.totalXpEarned += XP_AMOUNT;
+                
+                let leveledUp = false;
+                let newLevel = user.gamification.level;
+                
+                // Level up logic
+                while (user.gamification.xp >= user.gamification.xpToNextLevel) {
+                    user.gamification.level += 1;
+                    user.gamification.xp -= user.gamification.xpToNextLevel;
+                    user.gamification.xpToNextLevel = Math.floor(user.gamification.xpToNextLevel * 1.5);
+                    leveledUp = true;
+                    newLevel = user.gamification.level;
+                    
+                    // Add level up badge
+                    if (!user.gamification.badges) user.gamification.badges = [];
+                    user.gamification.badges.push({
+                        name: `Level ${newLevel} Achieved`,
+                        icon: 'fas fa-level-up-alt',
+                        description: `Reached level ${newLevel}`,
+                        earnedAt: new Date()
+                    });
+                }
+                
+                // Check for achievements
+                await checkAchievements(user);
+                
+                await user.save();
+                
+                console.log(`✅ XP added: ${XP_AMOUNT}, Level up: ${leveledUp}`);
+                
+                return res.json({
+                    message: 'Habit marked as completed',
+                    habit,
+                    stats: {
+                        streak: habit.statistics.streak,
+                        totalCompletions: habit.statistics.totalCompletions,
+                        successRate: habit.statistics.successRate
+                    },
+                    xpAdded: XP_AMOUNT,
+                    levelUp: leveledUp,
+                    newLevel: leveledUp ? newLevel : null
+                });
+                
+            } catch (xpError) {
+                console.error('Failed to add XP:', xpError.message);
+                return res.json({
+                    message: 'Habit marked as completed (XP not added)',
+                    habit,
+                    stats: {
+                        streak: habit.statistics.streak,
+                        totalCompletions: habit.statistics.totalCompletions,
+                        successRate: habit.statistics.successRate
+                    },
+                    xpAdded: 0,
+                    levelUp: false
+                });
+            }
+            
         } else {
             res.json({ 
                 message: 'Already completed today',
@@ -156,11 +234,11 @@ router.post('/:id/complete', verifyToken, async (req, res) => {
         }
     } catch (error) {
         console.error('Complete habit error:', error);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Server error: ' + error.message });
     }
 });
 
-// Delete habit
+// ========== DELETE HABIT ==========
 router.delete('/:id', verifyToken, async (req, res) => {
     try {
         const habit = await Habit.findOneAndDelete({
@@ -179,7 +257,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
     }
 });
 
-// Get statistics - REAL-TIME
+// ========== GET STATISTICS ==========
 router.get('/stats', verifyToken, async (req, res) => {
     try {
         const habits = await Habit.find({ userId: req.userId });
@@ -203,12 +281,10 @@ router.get('/stats', verifyToken, async (req, res) => {
             stats.totalCompletions += habit.statistics.totalCompletions;
             stats.averageSuccessRate += habit.statistics.successRate;
             
-            // Calculate total study time
             habit.completedDates.forEach(c => {
                 stats.totalStudyTime += c.timeSpent || 30;
             });
             
-            // Check if completed today
             const completedToday = habit.completedDates.some(completion => {
                 const compDate = new Date(completion.date);
                 compDate.setHours(0, 0, 0, 0);
@@ -219,11 +295,9 @@ router.get('/stats', verifyToken, async (req, res) => {
                 stats.completedToday += 1;
             }
             
-            // Add to category distribution
             stats.categoryDistribution[habit.category] = 
                 (stats.categoryDistribution[habit.category] || 0) + 1;
             
-            // Track school subjects
             if (habit.isSchoolSubject) {
                 stats.schoolSubjects.push({
                     title: habit.title,
@@ -233,7 +307,6 @@ router.get('/stats', verifyToken, async (req, res) => {
                 });
             }
             
-            // Add streak
             stats.streaks.push({
                 title: habit.title,
                 streak: habit.statistics.streak,
@@ -245,7 +318,7 @@ router.get('/stats', verifyToken, async (req, res) => {
             stats.averageSuccessRate = Math.round(stats.averageSuccessRate / habits.length);
         }
         
-        // Calculate weekly progress (last 7 days)
+        // Weekly progress
         for (let i = 6; i >= 0; i--) {
             const date = new Date();
             date.setDate(date.getDate() - i);
@@ -272,7 +345,7 @@ router.get('/stats', verifyToken, async (req, res) => {
     }
 });
 
-// Get today's timetable
+// ========== GET TODAY'S TIMETABLE ==========
 router.get('/timetable/today', verifyToken, async (req, res) => {
     try {
         const today = new Date();
@@ -290,12 +363,11 @@ router.get('/timetable/today', verifyToken, async (req, res) => {
     }
 });
 
-// Update timetable
+// ========== UPDATE TIMETABLE ==========
 router.post('/timetable/update', verifyToken, async (req, res) => {
     try {
         const { day, slots } = req.body;
         
-        // Update each habit's time slot
         for (const slot of slots) {
             await Habit.findOneAndUpdate(
                 { 
@@ -315,5 +387,106 @@ router.post('/timetable/update', verifyToken, async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+
+// ========== ACHIEVEMENT CHECK FUNCTION ==========
+async function checkAchievements(user) {
+    try {
+        if (!user.gamification) return;
+        if (!user.gamification.achievements) user.gamification.achievements = [];
+        
+        const Habit = require('../models/Habit');
+        const habitCount = await Habit.countDocuments({ userId: user._id });
+        
+        const newAchievements = [];
+        
+        function hasAchievement(title) {
+            return user.gamification.achievements.some(a => a.title === title);
+        }
+        
+        // Streak achievements
+        if (user.streak.current >= 7 && !hasAchievement('7 Day Streak')) {
+            newAchievements.push({
+                title: '7 Day Streak',
+                description: 'Maintained a streak for 7 days',
+                icon: 'fas fa-fire',
+                xpReward: 100,
+                completedAt: new Date()
+            });
+        }
+        
+        if (user.streak.current >= 30 && !hasAchievement('30 Day Streak')) {
+            newAchievements.push({
+                title: '30 Day Streak',
+                description: 'Maintained a streak for 30 days',
+                icon: 'fas fa-crown',
+                xpReward: 500,
+                completedAt: new Date()
+            });
+        }
+        
+        // Habit count achievements
+        if (habitCount >= 5 && !hasAchievement('Habit Starter')) {
+            newAchievements.push({
+                title: 'Habit Starter',
+                description: 'Created 5 habits',
+                icon: 'fas fa-seedling',
+                xpReward: 50,
+                completedAt: new Date()
+            });
+        }
+        
+        if (habitCount >= 10 && !hasAchievement('Habit Master')) {
+            newAchievements.push({
+                title: 'Habit Master',
+                description: 'Created 10 habits',
+                icon: 'fas fa-tasks',
+                xpReward: 200,
+                completedAt: new Date()
+            });
+        }
+        
+        // Completion achievements
+        if (user.stats?.totalCompletions >= 50 && !hasAchievement('Bronze Member')) {
+            newAchievements.push({
+                title: 'Bronze Member',
+                description: 'Completed 50 habits',
+                icon: 'fas fa-medal',
+                xpReward: 150,
+                completedAt: new Date()
+            });
+        }
+        
+        if (user.stats?.totalCompletions >= 100 && !hasAchievement('Century Club')) {
+            newAchievements.push({
+                title: 'Century Club',
+                description: 'Completed 100 habits',
+                icon: 'fas fa-star',
+                xpReward: 1000,
+                completedAt: new Date()
+            });
+        }
+        
+        // Add new achievements
+        for (const ach of newAchievements) {
+            user.gamification.achievements.push(ach);
+            
+            // Add XP for achievement
+            user.gamification.xp += ach.xpReward;
+            user.gamification.totalXpEarned += ach.xpReward;
+            
+            // Add badge
+            if (!user.gamification.badges) user.gamification.badges = [];
+            user.gamification.badges.push({
+                name: ach.title,
+                icon: ach.icon,
+                description: ach.description,
+                earnedAt: new Date()
+            });
+        }
+        
+    } catch (error) {
+        console.error('Check achievements error:', error);
+    }
+}
 
 module.exports = router;
